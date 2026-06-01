@@ -9,6 +9,38 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Pre-submission QA checklist added 📋
+Wrote `docs/PRE_SUBMISSION_QA.md` — the verification/hardening pass to run BEFORE App Store
+submission (complement to the build roadmap). Framed around the confirmed product vision:
+**ToDoMon = Tamagotchi virtual pet × to-do list** (real tasks feed/evolve the Sun Dragon;
+neglect makes it hungry/sad). Covers: the core pet-care loop feeling alive, regression of all
+session fixes, to-do + creature feature test matrices, economy/anti-cheat integrity, auth +
+**account deletion**, loading/empty/error/offline states, cross-device/safe-areas, perf,
+a11y, security/RLS, notifications, IAP, App Store compliance gates, and a final-pre-flight
+playthrough. Each item is a testable check with a severity guide. Hand Codex this after the
+features in `docs/APP_STORE_ROADMAP.md` are built.
+
+### (2026-06-01) Capacitor iOS shell added — Xcode blocker ⚠️
+Started Epic 0.1 from `docs/APP_STORE_ROADMAP.md`.
+- Added root Capacitor tooling: `@capacitor/core`, `@capacitor/ios`, `@capacitor/cli`,
+  root `package.json` scripts, and `capacitor.config.ts`.
+- Config: app name `ToDoMon`, bundle id `com.sonnymay.todomon`, web dir `frontend/dist`.
+- Generated the native iOS project at `ios/App/App.xcodeproj`.
+- `npm run build` from the repo root passes and builds the Vite app.
+
+Current blocker:
+- `npx cap sync ios` copies web assets and writes iOS config, then fails at CocoaPods/Xcode:
+  `xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory
+  '/Library/Developer/CommandLineTools' is a command line tools instance`.
+- `/Applications/Xcode.app` was not present during this run, so simulator build/open could
+  not be verified yet.
+
+Next step:
+- Install full Xcode, open it once to finish setup, then run:
+  `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
+- After that, verify with `npm run cap:sync:ios`, then `npm run ios:open` and build the
+  app in an iOS simulator.
+
 ### (2026-06-01) App Store readiness roadmap added 📋
 Wrote `docs/APP_STORE_ROADMAP.md` — a detailed, Codex-ready task list (Epics 0–18) to take
 ToDoMon from dev-mode web prototype to a sellable iOS app. Key framing: **it's a web app and
