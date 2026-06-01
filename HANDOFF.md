@@ -9,6 +9,35 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Level-driven evolution + real hunger mechanic ✅
+Plan: `~/.claude/plans/the-level-should-start-validated-metcalfe.md`.
+- **Evolution is now LEVEL-driven, 0-based.** `STAGE_LEVEL` in `lib/stages.ts`:
+  egg 0, hatchling 1, baby 15, rookie 30, champion 45, ultimate 60, mega 100.
+- **Ramping XP curve** (harder to level): `xpForLevel(L) = 5L² + 45L`
+  (L1=50, L15=1800, L45=12150, L60=20700, L100=54500). `levelFromXp` is the inverse;
+  `stageForLevel`/`stageForXp` go through it. `STAGE_THRESHOLDS` is now derived from
+  `xpForLevel(STAGE_LEVEL[...])`. Removed old `nextStageInfo`/`MAX_XP`; added
+  `levelInfo(xp)` (within-level bar) and `nextEvolution(stage)`.
+- **StatsPanel**: badge shows the 0-based level; XP bar shows within-level progress
+  (`xpIntoLevel / levelSpan`); added "Next evolution: <Stage> at Lv N" caption.
+- **Real hunger** (`lib/useHunger.ts`, new): −1 every 30 min (real clock, even while
+  closed), +1 per task completed, persisted to `localStorage` key `todomon_hunger_v1`
+  (carries decay remainder; live 60s tick). Wired in `App.tsx` (replaces the placeholder
+  `useState(72)`; `onTaskCompleted()` called in both complete paths).
+- **Very-hungry state**: when `hunger < 20` and awake, `CreatureScene` plays
+  `sun_dragon_<stage>_hungry.mp4` (z above base, below sleep). Sleep wins at night
+  (day-only). Missing asset → `onError` falls back to the normal scene (verified clean).
+- **Seed** `seedCreature` xp bumped 620 → 14750 (≈ Lv 50 → champion) so the dev seed
+  still shows an evolved pet under the new curve.
+- Verified live: all 7 stages map to their milestone levels via Dev-Evolve (egg 0 …
+  mega 100); task complete = +40 XP / +1 hunger; decay 15→11 after 2h; very-hungry
+  fallback clean; `npm run build` green; fresh-server console clean.
+- **TODO (assets):** user to generate `sun_dragon_<stage>_hungry.mp4` ×7 into
+  `frontend/public/assets/creatures/` (falls back gracefully until then).
+- **DEFERRED (needs approval):** matching Supabase migration — `todomon_stage_for_xp()`
+  to the new curve/levels + real `todomon_creatures.hunger`/`hunger_updated_at` columns
+  with decay (roadmap Epic 2.3). Dev mode (TS + localStorage) is authoritative until then.
+
 ### (2026-06-01) Pre-submission QA checklist added 📋
 Wrote `docs/PRE_SUBMISSION_QA.md` — the verification/hardening pass to run BEFORE App Store
 submission (complement to the build roadmap). Framed around the confirmed product vision:

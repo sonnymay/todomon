@@ -21,6 +21,7 @@ import {
   STAGE_THRESHOLDS,
   stageForXp,
 } from './lib/stages'
+import { useHunger } from './lib/useHunger'
 import Auth from './components/Auth'
 import Home from './components/Home'
 
@@ -51,11 +52,11 @@ export default function App() {
   // follows local time.
   const [night, setNight] = useState(DEV_NO_AUTH ? false : isNight())
 
-  // Cosmetic stats — placeholder values for now, but owned as state here so they can
-  // be wired to real profile/creature data later without moving ownership.
+  // Coins/gems are still cosmetic placeholders (owned here so they can be wired to real
+  // profile data later). Hunger is real: decays over time, +1 per task (see useHunger).
   const [coins] = useState(1250)
   const [gems] = useState(45)
-  const [hunger] = useState(72)
+  const { hunger, onTaskCompleted } = useHunger()
 
   useEffect(() => {
     if (DEV_NO_AUTH) {
@@ -136,6 +137,7 @@ export default function App() {
         ),
       )
       cheer()
+      onTaskCompleted()
       applyLevelUp(prevStage, newStage)
       return
     }
@@ -150,6 +152,7 @@ export default function App() {
       ),
     )
     cheer()
+    onTaskCompleted()
     applyLevelUp(prevStage, updated.stage)
   }
 

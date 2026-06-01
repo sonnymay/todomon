@@ -11,15 +11,34 @@ export const STAGE_ORDER: Stage[] = [
   'mega',
 ]
 
-// Cumulative XP required to ENTER each stage — must match todomon_stage_for_xp().
-export const STAGE_THRESHOLDS: Record<Stage, number> = {
+// Evolution is LEVEL-driven. Each stage unlocks at this level (0-based; egg = level 0).
+export const STAGE_LEVEL: Record<Stage, number> = {
   egg: 0,
-  hatchling: 50,
-  baby: 120,
-  rookie: 250,
-  champion: 450,
-  ultimate: 700,
-  mega: 1000,
+  hatchling: 1,
+  baby: 15,
+  rookie: 30,
+  champion: 45,
+  ultimate: 60,
+  mega: 100,
+}
+
+// Cumulative XP required to REACH a level. Ramping curve — cheap early, grindy late:
+//   xpForLevel(L) = 5*L^2 + 45*L  (L0=0, L1=50, L15=1800, L45=12150, L60=20700, L100=54500)
+export function xpForLevel(level: number): number {
+  const l = Math.max(0, Math.floor(level))
+  return 5 * l * l + 45 * l
+}
+
+// Cumulative XP to ENTER each stage, derived from its unlock level.
+// Must match the SQL todomon_stage_for_xp() once the backend migration lands.
+export const STAGE_THRESHOLDS: Record<Stage, number> = {
+  egg: xpForLevel(STAGE_LEVEL.egg),
+  hatchling: xpForLevel(STAGE_LEVEL.hatchling),
+  baby: xpForLevel(STAGE_LEVEL.baby),
+  rookie: xpForLevel(STAGE_LEVEL.rookie),
+  champion: xpForLevel(STAGE_LEVEL.champion),
+  ultimate: xpForLevel(STAGE_LEVEL.ultimate),
+  mega: xpForLevel(STAGE_LEVEL.mega),
 }
 
 export const STAGE_LABEL: Record<Stage, string> = {
@@ -60,21 +79,41 @@ export function creatureSleepImage(stage: Stage): string {
   return `/assets/creatures/${SLEEP_IMAGE_BY_STAGE[stage]}`
 }
 
-// Mega threshold doubles as the "full" XP for the headline XP bar.
-export const MAX_XP = STAGE_THRESHOLDS.mega
-
-// Cosmetic level number for the badge (the real progression is stage-based).
-export function levelFromXp(xp: number): number {
-  return Math.floor(xp / 50) + 1
+// "Very hungry" scene video (shown when hunger < 20 and awake). Generated separately;
+// CreatureScene falls back to the normal scene video if the file is missing.
+const HUNGRY_VIDEO_BY_STAGE: Record<Stage, string> = {
+  egg: 'sun_dragon_egg_hungry.mp4',
+  hatchling: 'sun_dragon_hatchling_hungry.mp4',
+  baby: 'sun_dragon_baby_hungry.mp4',
+  rookie: 'sun_dragon_rookie_hungry.mp4',
+  champion: 'sun_dragon_champion_hungry.mp4',
+  ultimate: 'sun_dragon_ultimate_hungry.mp4',
+  mega: 'sun_dragon_mega_hungry.mp4',
 }
 
-// TS port of the SQL todomon_stage_for_xp() — used by the in-memory dev mode.
-export function stageForXp(xp: number): Stage {
+export function creatureHungryVideo(stage: Stage): string {
+  return `/assets/creatures/${HUNGRY_VIDEO_BY_STAGE[stage]}`
+}
+
+// Player level from total XP — inverse of xpForLevel. 0-based (level 0 = egg).
+//   L = floor((-45 + sqrt(2025 + 20*xp)) / 10)
+export function levelFromXp(xp: number): number {
+  if (xp <= 0) return 0
+  return Math.max(0, Math.floor((-45 + Math.sqrt(2025 + 20 * xp)) / 10))
+}
+
+// Highest stage whose unlock level is <= the given level.
+export function stageForLevel(level: number): Stage {
   let result: Stage = 'egg'
   for (const stage of STAGE_ORDER) {
-    if (xp >= STAGE_THRESHOLDS[stage]) result = stage
+    if (level >= STAGE_LEVEL[stage]) result = stage
   }
   return result
+}
+
+// Stage from total XP (level-driven). Kept for existing callers.
+export function stageForXp(xp: number): Stage {
+  return stageForLevel(levelFromXp(xp))
 }
 
 export type Difficulty = 'SMALL' | 'MEDIUM' | 'LARGE'
@@ -91,26 +130,32 @@ export function difficultyForXp(xp: number): Difficulty {
   return 'SMALL'
 }
 
-export interface NextStageInfo {
-  next: Stage | null
-  toNext: number
-  bandStart: number
-  bandEnd: number
+export interface LevelInfo {
+  level: number
+  xpIntoLevel: number
+  levelSpan: number
   pct: number
+  xpToNext: number
 }
 
-// Progress within the current stage band toward the next stage.
-export function nextStageInfo(stage: Stage, xp: number): NextStageInfo {
+// Progress within the current level toward the next level (drives the XP bar).
+export function levelInfo(xp: number): LevelInfo {
+  const level = levelFromXp(xp)
+  const base = xpForLevel(level)
+  const next = xpForLevel(level + 1)
+  const levelSpan = next - base
+  const xpIntoLevel = Math.max(0, xp - base)
+  const pct =
+    levelSpan > 0
+      ? Math.min(100, Math.max(0, Math.round((xpIntoLevel / levelSpan) * 100)))
+      : 0
+  return { level, xpIntoLevel, levelSpan, pct, xpToNext: Math.max(0, next - xp) }
+}
+
+// The next stage the creature evolves into and the level that unlocks it.
+export function nextEvolution(stage: Stage): { stage: Stage; level: number } | null {
   const idx = STAGE_ORDER.indexOf(stage)
-  const next = STAGE_ORDER[idx + 1] ?? null
-  const bandStart = STAGE_THRESHOLDS[stage]
-  if (!next) {
-    return { next: null, toNext: 0, bandStart, bandEnd: bandStart, pct: 100 }
-  }
-  const bandEnd = STAGE_THRESHOLDS[next]
-  const pct = Math.min(
-    100,
-    Math.max(0, Math.round(((xp - bandStart) / (bandEnd - bandStart)) * 100)),
-  )
-  return { next, toNext: Math.max(0, bandEnd - xp), bandStart, bandEnd, pct }
+  const next = STAGE_ORDER[idx + 1]
+  if (!next) return null
+  return { stage: next, level: STAGE_LEVEL[next] }
 }

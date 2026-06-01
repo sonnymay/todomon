@@ -61,6 +61,7 @@ export default function Home({
         <CreatureScene
           creature={creature}
           night={night}
+          hunger={hunger}
           justLeveledTo={leveledTo}
           celebration={celebrate}
           topBar={

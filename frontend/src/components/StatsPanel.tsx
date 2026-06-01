@@ -1,9 +1,9 @@
 import type { Creature } from '../types'
-import { levelFromXp, nextStageInfo } from '../lib/stages'
+import { levelInfo, nextEvolution, STAGE_LABEL } from '../lib/stages'
 
 interface Props {
   creature: Creature
-  hunger: number // cosmetic placeholder (0-100) until a hunger mechanic exists
+  hunger: number // real 0-100 hunger (decays over time, +1 per task)
 }
 
 function Bar({ value, max, className }: { value: number; max: number; className: string }) {
@@ -19,11 +19,10 @@ function Bar({ value, max, className }: { value: number; max: number; className:
 }
 
 export default function StatsPanel({ creature, hunger }: Props) {
-  // XP bar shows progress WITHIN the current stage band (0 → next stage), not
-  // cumulative XP toward mega. Mega has no next stage, so it reads full / MAX.
-  const stageProgress = nextStageInfo(creature.stage, creature.xp)
-  const xpInBand = creature.xp - stageProgress.bandStart
-  const bandSize = stageProgress.bandEnd - stageProgress.bandStart
+  // XP bar shows progress WITHIN the current level (0 → next level). Evolution is a
+  // milestone of leveling (see STAGE_LEVEL), surfaced as the "next evolution" caption.
+  const lvl = levelInfo(creature.xp)
+  const evo = nextEvolution(creature.stage)
 
   return (
     <div className="relative z-10 mx-3 -mt-6 rounded-2xl bg-[#fdf3da] p-4 shadow-lg">
@@ -39,17 +38,20 @@ export default function StatsPanel({ creature, hunger }: Props) {
           <span className="flex w-20 shrink-0 items-center gap-1.5 text-sm font-bold text-slate-700">
             <span className="flex items-center gap-1 rounded-full bg-[#5c6b1e] px-2 py-0.5 text-xs font-extrabold text-white">
               <span className="text-yellow-300">🏅</span>
-              {levelFromXp(creature.xp)}
+              {lvl.level}
             </span>
             XP
           </span>
-          <Bar value={stageProgress.pct} max={100} className="bg-gradient-to-r from-sky-400 to-blue-500" />
+          <Bar value={lvl.pct} max={100} className="bg-gradient-to-r from-sky-400 to-blue-500" />
           <span className="w-20 shrink-0 whitespace-nowrap text-right text-sm font-semibold text-slate-600">
-            {stageProgress.next
-              ? `${xpInBand.toLocaleString()} / ${bandSize.toLocaleString()}`
-              : 'MAX'}
+            {lvl.xpIntoLevel.toLocaleString()} / {lvl.levelSpan.toLocaleString()}
           </span>
         </div>
+        {evo && (
+          <p className="text-right text-[11px] font-semibold text-slate-400">
+            Next evolution: {STAGE_LABEL[evo.stage]} at Lv {evo.level}
+          </p>
+        )}
       </div>
     </div>
   )

@@ -14,8 +14,9 @@ const DEV_USER = 'dev-user'
 const now = (): string => new Date().toISOString()
 
 // Seeded so the screen looks like the mockup (an evolved creature mid-progress).
+// Under the ramping curve, 14,750 XP ≈ level 50 → champion stage.
 export function seedCreature(): Creature {
-  const xp = 620
+  const xp = 14750
   return {
     id: localId(),
     user_id: DEV_USER,

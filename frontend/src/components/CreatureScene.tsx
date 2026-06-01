@@ -1,10 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type { Creature } from '../types'
-import { creatureSceneVideo, creatureSleepImage } from '../lib/stages'
+import {
+  creatureHungryVideo,
+  creatureSceneVideo,
+  creatureSleepImage,
+} from '../lib/stages'
 
 interface Props {
   creature: Creature
   night: boolean
+  hunger: number
   justLeveledTo: string | null
   celebration: string | null
   topBar: ReactNode
@@ -13,21 +18,33 @@ interface Props {
 // Stage media are full-scene assets. Idle uses looping MP4; sleep uses a static
 // PNG when present, with the idle video still available as fallback.
 const SCENE_HEIGHT = 440
+const HUNGRY_THRESHOLD = 20
 
 export default function CreatureScene({
   creature,
   night,
+  hunger,
   justLeveledTo,
   celebration,
   topBar,
 }: Props) {
   const sceneVideo = creatureSceneVideo(creature.stage)
   const sleepImage = creatureSleepImage(creature.stage)
+  const hungryVideo = creatureHungryVideo(creature.stage)
   const [sleepImageFailed, setSleepImageFailed] = useState(false)
+  const [hungryVideoFailed, setHungryVideoFailed] = useState(false)
 
   useEffect(() => {
     setSleepImageFailed(false)
   }, [sleepImage])
+
+  useEffect(() => {
+    setHungryVideoFailed(false)
+  }, [hungryVideo])
+
+  // Very-hungry state shows a distinct video — but only while awake (sleep wins at
+  // night). Falls back to the normal scene if the hungry asset isn't present yet.
+  const showHungry = !night && hunger < HUNGRY_THRESHOLD && !hungryVideoFailed
 
   return (
     <div
@@ -56,6 +73,27 @@ export default function CreatureScene({
       >
         <source src={sceneVideo} type="video/mp4" />
       </video>
+
+      {showHungry && (
+        <video
+          key={`hungry-${creature.stage}`}
+          autoPlay
+          loop
+          muted
+          playsInline
+          onError={() => setHungryVideoFailed(true)}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            height: '100%',
+            width: '100%',
+            objectFit: 'cover',
+            zIndex: 1,
+          }}
+        >
+          <source src={hungryVideo} type="video/mp4" />
+        </video>
+      )}
 
       {night && !sleepImageFailed && (
         <img
