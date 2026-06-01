@@ -9,6 +9,19 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Numbered tasks + big "done today" counter ✅
+- **Numbered task badges**: removed the `taskIcon()` emoji/color helper in `TaskList.tsx`.
+  Open tasks now show their position number (1, 2, 3, … — `i + 1` over the open-first
+  `ordered` list) on an amber badge; completed tasks show a green ✓. Numbers renumber with
+  no gaps as tasks complete.
+- **Big satisfying counter**: replaced the small "done today" pill with a hero block — a
+  `text-5xl font-black` green number + "done today ✅" label. It **pops** (scale 1→1.45→1)
+  whenever the count increases (`count-pop` keyframe in `index.css`, triggered via a
+  `prevDone` ref + `useEffect`; auto-clears after 450ms).
+- Verified live: open tasks 1–4 + ✓ for done; hero number large (48px); completing a task
+  increments 1→2, pops once then clears, and remaining tasks renumber 1–3; `npm run build`
+  green; fresh-server console clean.
+
 ### (2026-06-01) Hungry Sun Dragon videos added for 5 stages ✅
 Moved existing hungry-state MP4s from `~/Downloads/` into
 `frontend/public/assets/creatures/`:

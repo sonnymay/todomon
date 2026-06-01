@@ -45,3 +45,21 @@ body {
 .heart-float {
   animation: heart-float 0.9s ease-out forwards;
 }
+
+/* "Done today" counter pops when it grows. */
+@keyframes count-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.45);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.count-pop {
+  display: inline-block;
+  animation: count-pop 0.45s ease-out;
+}

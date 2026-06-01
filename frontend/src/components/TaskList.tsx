@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { Task } from '../types'
 import { DIFFICULTY_XP } from '../lib/stages'
 
@@ -12,20 +12,11 @@ interface Props {
 // Every task is worth the same (kept simple — no difficulty picker shown to the user).
 const TASK_XP = DIFFICULTY_XP.SMALL
 
-function taskIcon(title: string): { emoji: string; bg: string } {
-  const t = title.toLowerCase()
-  if (/work ?out|gym|run|exercise|train/.test(t)) return { emoji: '🏋️', bg: 'bg-orange-400' }
-  if (/study|learn|read|book|course/.test(t)) return { emoji: '📘', bg: 'bg-blue-400' }
-  if (/email|inbox|reply|mail|message/.test(t)) return { emoji: '✉️', bg: 'bg-amber-400' }
-  if (/plan|priorit|review|organi/.test(t)) return { emoji: '🗒️', bg: 'bg-green-400' }
-  if (/write|draft|outline|note/.test(t)) return { emoji: '✏️', bg: 'bg-purple-400' }
-  return { emoji: '⭐', bg: 'bg-yellow-400' }
-}
-
 export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) {
   const [title, setTitle] = useState('')
   const [adding, setAdding] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [pop, setPop] = useState(false)
 
   const completedCount = tasks.filter((t) => t.is_done).length
 
@@ -37,6 +28,18 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
       t.completed_at &&
       new Date(t.completed_at).toDateString() === today,
   ).length
+
+  // Pop the counter whenever it grows — a little hit of satisfaction.
+  const prevDone = useRef(doneToday)
+  useEffect(() => {
+    if (doneToday > prevDone.current) {
+      setPop(true)
+      const timer = setTimeout(() => setPop(false), 450)
+      prevDone.current = doneToday
+      return () => clearTimeout(timer)
+    }
+    prevDone.current = doneToday
+  }, [doneToday])
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -69,9 +72,20 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
         </span>
       </div>
 
-      {/* prominent "done today" counter — a growing reward number */}
-      <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-sm font-bold text-green-700">
-        ✅ {doneToday} done today
+      {/* big satisfying "done today" counter */}
+      <div className="mt-3 flex items-center gap-3 rounded-3xl bg-green-100 px-5 py-3">
+        <span
+          className={`text-5xl font-black leading-none text-green-600 ${
+            pop ? 'count-pop' : ''
+          }`}
+        >
+          {doneToday}
+        </span>
+        <span className="text-sm font-extrabold leading-tight text-green-700">
+          done
+          <br />
+          today ✅
+        </span>
       </div>
 
       <form onSubmit={submit} className="mt-3 flex gap-2">
@@ -97,8 +111,7 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
             No tasks yet — add one to feed your dragon! 🐣
           </li>
         )}
-        {ordered.map((t) => {
-          const icon = taskIcon(t.title)
+        {ordered.map((t, i) => {
           return (
             <li
               key={t.id}
@@ -107,11 +120,11 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
               }`}
             >
               <div
-                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl text-white ${
-                  t.is_done ? 'bg-green-500' : icon.bg
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl font-black text-white ${
+                  t.is_done ? 'bg-green-500' : 'bg-amber-400'
                 }`}
               >
-                {t.is_done ? '✓' : icon.emoji}
+                {t.is_done ? '✓' : i + 1}
               </div>
 
               <div className="min-w-0 flex-1">
