@@ -1,0 +1,35 @@
+# OS
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
+frontend/*.local
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Backend
+backend/.venv/
+backend/venv/
+backend/__pycache__/
+backend/**/*.py[cod]
+backend/*.egg-info/
+backend/.pytest_cache/
+backend/.env
+
+# Editor
+.claude/settings.local.json
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.sw?

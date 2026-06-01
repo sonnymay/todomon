@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* No git repo at the project root, so Tailwind v4's automatic content detection
+   emits only the theme layer and ZERO utilities → the app renders unstyled.
+   Register sources explicitly. Paths are relative to THIS file (frontend/src/).
+   NOTE: the `**` globstar did NOT recurse into subdirs in this setup, so we list
+   each source directory with a FLAT `*` glob instead. */
+@source "../index.html";
+@source "./*.{ts,tsx}";
+@source "./components/*.{ts,tsx}";
+@source "./lib/*.{ts,tsx}";
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
