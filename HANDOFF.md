@@ -9,6 +9,13 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) New tasks queue to the bottom ✅
+Flipped the `TaskList` open-task ordering from newest-first to **oldest-first**
+(`created_at` ascending) so newly added tasks append to the **bottom** of the open list
+(work them top-to-bottom like a queue). Completed tasks still sort after open ones; the
+1,2,3… numbering follows the same order. Verified: a freshly added task renders last among
+open tasks (#5, above the done task); `npm run build` green; console clean.
+
 ### (2026-06-01) Numbered tasks + big "done today" counter ✅
 - **Numbered task badges**: removed the `taskIcon()` emoji/color helper in `TaskList.tsx`.
   Open tasks now show their position number (1, 2, 3, … — `i + 1` over the open-first

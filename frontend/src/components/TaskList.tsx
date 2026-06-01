@@ -54,11 +54,12 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
     }
   }
 
-  // open tasks first, then completed; newest first within each group.
+  // open tasks first, then completed; oldest first within each group, so newly added
+  // tasks queue to the BOTTOM and you work through them top-to-bottom.
   const ordered = [...tasks].sort(
     (a, b) =>
       Number(a.is_done) - Number(b.is_done) ||
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   )
 
   return (
