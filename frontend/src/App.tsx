@@ -51,6 +51,12 @@ export default function App() {
   // follows local time.
   const [night, setNight] = useState(DEV_NO_AUTH ? false : isNight())
 
+  // Cosmetic stats — placeholder values for now, but owned as state here so they can
+  // be wired to real profile/creature data later without moving ownership.
+  const [coins] = useState(1250)
+  const [gems] = useState(45)
+  const [hunger] = useState(72)
+
   useEffect(() => {
     if (DEV_NO_AUTH) {
       setCreature(seedCreature())
@@ -193,6 +199,9 @@ export default function App() {
         tasks={tasks}
         loading={loading}
         error={error}
+        coins={coins}
+        gems={gems}
+        hunger={hunger}
         night={night}
         leveledTo={leveledTo}
         celebrate={celebrate}

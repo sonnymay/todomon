@@ -2,9 +2,10 @@ interface Props {
   coins: number
   gems: number
   onMenu: () => void
+  onComingSoon: (label: string) => void
 }
 
-export default function TopBar({ coins, gems, onMenu }: Props) {
+export default function TopBar({ coins, gems, onMenu, onComingSoon }: Props) {
   return (
     <div className="flex items-center gap-2 px-3 pt-3">
       {/* avatar */}
@@ -25,6 +26,7 @@ export default function TopBar({ coins, gems, onMenu }: Props) {
         </span>
         <button
           aria-label="Add currency"
+          onClick={() => onComingSoon('Shop')}
           className="ml-auto flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
         >
           +
@@ -34,6 +36,7 @@ export default function TopBar({ coins, gems, onMenu }: Props) {
       {/* gift */}
       <button
         aria-label="Rewards"
+        onClick={() => onComingSoon('Rewards')}
         className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/90 text-xl shadow hover:bg-white"
       >
         🎁

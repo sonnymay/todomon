@@ -12,7 +12,7 @@ interface Props {
 
 // Stage media are full-scene assets. Idle uses looping MP4; sleep uses a static
 // PNG when present, with the idle video still available as fallback.
-const SCENE_HEIGHT = 380
+const SCENE_HEIGHT = 440
 
 export default function CreatureScene({
   creature,

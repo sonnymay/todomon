@@ -11,7 +11,7 @@ let counter = 0
 const localId = (): string => `local-${++counter}`
 
 const DEV_USER = 'dev-user'
-const now = (): string => new Date(0).toISOString()
+const now = (): string => new Date().toISOString()
 
 // Seeded so the screen looks like the mockup (an evolved creature mid-progress).
 export function seedCreature(): Creature {

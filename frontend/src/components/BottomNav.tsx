@@ -1,6 +1,7 @@
 interface Props {
   night: boolean
   onToggleNight: () => void
+  onComingSoon: (label: string) => void
 }
 
 const TABS = [
@@ -11,7 +12,7 @@ const TABS = [
 ]
 
 // Home is the only functional tab today; the others are placeholders.
-export default function BottomNav({ night, onToggleNight }: Props) {
+export default function BottomNav({ night, onToggleNight, onComingSoon }: Props) {
   return (
     <div className="sticky bottom-0 z-10">
       {/* SLEEP toggle — floats ABOVE the nav row (right-aligned) so it no longer
@@ -31,8 +32,14 @@ export default function BottomNav({ night, onToggleNight }: Props) {
         {TABS.map((tab) => (
           <button
             key={tab.key}
-            className={`flex flex-1 flex-col items-center gap-0.5 py-1 text-xs font-semibold ${
-              tab.key === 'home' ? 'text-orange-500' : 'text-slate-400'
+            onClick={() =>
+              tab.key === 'home' ? undefined : onComingSoon(tab.label)
+            }
+            aria-current={tab.key === 'home' ? 'page' : undefined}
+            className={`flex flex-1 flex-col items-center gap-0.5 py-1 text-xs font-semibold transition ${
+              tab.key === 'home'
+                ? 'text-orange-500'
+                : 'text-slate-400 hover:text-slate-500'
             }`}
           >
             <span className="text-xl">{tab.icon}</span>

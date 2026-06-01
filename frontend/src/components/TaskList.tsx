@@ -58,8 +58,13 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
     }
   }
 
-  // open tasks first, then completed (matches "Today's Tasks" feed)
-  const ordered = [...tasks].sort((a, b) => Number(a.is_done) - Number(b.is_done))
+  // open tasks first, then completed; newest first within each group (don't rely on
+  // sort stability for new-task ordering).
+  const ordered = [...tasks].sort(
+    (a, b) =>
+      Number(a.is_done) - Number(b.is_done) ||
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  )
 
   return (
     <section className="px-3">
@@ -82,12 +87,12 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Add a task…"
-          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
+          className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
         />
         <select
           value={xp}
           onChange={(e) => setXp(Number(e.target.value))}
-          className="rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm"
+          className="shrink-0 rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm"
         >
           <option value={DIFFICULTY_XP.SMALL}>Small · 20</option>
           <option value={DIFFICULTY_XP.MEDIUM}>Medium · 40</option>
@@ -96,7 +101,7 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
         <button
           type="submit"
           disabled={adding}
-          className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold text-white hover:bg-orange-600 disabled:opacity-60"
+          className="shrink-0 rounded-xl bg-orange-500 px-4 py-2 text-sm font-bold text-white hover:bg-orange-600 disabled:opacity-60"
         >
           Add
         </button>
@@ -171,7 +176,7 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
                   <button
                     aria-label="Delete task"
                     onClick={() => onDelete(t.id)}
-                    className="px-1 text-slate-300 opacity-0 transition group-hover:opacity-100 hover:text-red-500"
+                    className="px-1 text-slate-300 transition hover:text-red-500"
                   >
                     ✕
                   </button>

@@ -9,6 +9,68 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Interaction fixes — touch delete + dead-control feedback ✅
+- **Delete was unusable on touch** — the task ✕ was `opacity-0 group-hover:opacity-100`,
+  so on a mobile app (no hover) you could never delete a task. Made it always visible
+  (`text-slate-300 hover:text-red-500`). Verified: ✕ shows and removes the task (5→4).
+- **Dead placeholder controls now give feedback** — TopBar `+`/`🎁` and the
+  Inventory/Quests/Stats nav tabs looked tappable but did nothing. Added a lightweight
+  "… — coming soon ✨" toast (owned by `Home` via `comingSoon(label)`, auto-clears 1.8s,
+  fixed + centered above the nav). Wired into `TopBar` (`onComingSoon`) and `BottomNav`
+  (`onComingSoon`, non-home tabs; Home tab marked `aria-current="page"`). The `☰` menu
+  still calls `onSignOut` (real in prod) — left as-is.
+- Confirmed the core loop is healthy: completing a task adds XP, advances the in-band XP
+  bar + "done today" + "X/N completed", and fires the "Great job!" bubble (3.5s).
+- `npm run build` green; console clean.
+
+### (2026-06-01) Visual polish — occlusion & overflow fixes ✅
+Three obvious "not beautiful" bugs found and fixed (all verified live, console clean):
+- **Hunger bar was occluded** — `StatsPanel` was `position: static` while the scene is
+  `position: relative`; positioned elements paint above static ones, so the scene
+  covered the card's top row (Hunger) where `-mt-6` tucks it under. Fix: added
+  `relative z-10` to the StatsPanel card so it paints above the scene. Tuck/shadow look
+  preserved; full Hunger + XP rows now visible.
+- **"Add" button was clipped** — the add-task `form` is `flex`; the `<input>` has an
+  intrinsic min-width so it wouldn't shrink, pushing the select + button past the row
+  edge (button rendered ~28px of its 60px). Fix in `TaskList.tsx`: `min-w-0 flex-1` on
+  input, `shrink-0` on the select and the Add button. Button now fully visible.
+- **Floating SLEEP button overlapped the last task** — the FAB (`absolute bottom-16`
+  in the sticky `BottomNav`) floated over the bottom of the scrolling task list. Fix in
+  `Home.tsx`: bumped the task-list wrapper to `pb-28` so the last task always clears the
+  FAB + nav (also tightened `pt-8`→`pt-5` to close a loose gap under the stats card).
+- **Coins/Gems/Hunger lifted to state** — were module-level constants in `Home.tsx`;
+  now `useState` in `App.tsx` (`coins`/`gems`/`hunger`, placeholder values) passed down
+  as props through `Home` → `TopBar`/`StatsPanel`. Ownership now sits with the data owner
+  so they can be wired to real profile/creature data later. Still cosmetic for now.
+- **StatsPanel no longer cuts off the dragon** — the `-mt-6` tuck overlapped the bottom
+  of the (380px) scene and clipped the creature's lower body. Raised `SCENE_HEIGHT`
+  380→440 in `CreatureScene.tsx`; the dragon now sits fully above the card while the
+  polished tucked-card look (negative margin + shadow) is preserved. Verified day + sleep.
+- Verified live (fresh dev server, console clean): coins 1,250 / gems 45 / hunger 72/100
+  render from props; full dragon visible; sleep PNG + dim overlay still scale to 440.
+- Items 1 (epoch `now()`) and 4 (XP bar within-stage) from the prior review confirmed
+  still in place — no changes needed.
+
+### (2026-06-01) Dev-mode logic bug fixes ✅
+Reviewed a 5-bug report; verified each against the code before acting.
+- **FIXED — "done today" always 0** (`lib/localGame.ts`): `now()` was
+  `new Date(0)` (the Unix epoch, 1970), so every seeded `completed_at` landed in 1970
+  and the today-filter excluded them. Changed to `new Date()`. Verified: badge now
+  shows `1 done today` (was `0`).
+- **NOT A SEPARATE BUG — "X / N completed" vs "done today"**: a symptom of the epoch
+  bug. The two are different metrics by design (all-done vs done-today); they align once
+  timestamps are correct. No code change.
+- **LEFT AS-IS — hardcoded coins/gems/hunger** (`Home.tsx`): documented placeholder
+  (see TODO list), not a bug. Wiring real currency/hunger is out of scope.
+- **FIXED — XP bar showed cumulative-to-mega, not within-stage** (`StatsPanel.tsx`):
+  per user decision, switched from `xp / MAX_XP` to `nextStageInfo(stage, xp)` band
+  progress. Bar fills 0→100% within the current stage; label shows band XP
+  (e.g. champion `170 / 250`, ultimate `0 / 300`) and `MAX` at mega. Verified live.
+- **FIXED — new-task order relied on sort stability** (`TaskList.tsx`): added a
+  secondary `created_at` desc tiebreaker so prepended tasks render first deterministically.
+  Verified: a freshly-added task renders at the top of the open list.
+- `npm run build` green after all edits.
+
 ### 0a. Sun Dragon full-scene media — REVIEWED & VERIFIED ✅
 The app has switched away from transparent creature WebMs for the main scene. Idle
 state uses **opaque full-scene MP4 per stage**; sleep/night state uses **full-scene
