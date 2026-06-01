@@ -9,6 +9,28 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Simplify & cute-ify (strip clutter) ✅
+Plan: `~/.claude/plans/the-level-should-start-validated-metcalfe.md`. Goal: kid-friendly,
+simple, cute.
+- **TopBar**: now just avatar + pet name ("🐲 Sunny") + ☰ menu. Removed coins, gems (💎),
+  gift (🎁), and the + button. Props reduced to `{ petName, onMenu }`.
+- **Economy removed from UI**: dropped `coins`/`gems` state in `App.tsx` and props through
+  `Home`. (Level/XP/hunger mechanic untouched.)
+- **BottomNav**: removed the dead Inventory/Quests/Stats tabs; now a slim sticky bar with a
+  single cute Sleep/Wake pill. Removed the coming-soon toast machinery from `Home` (no
+  longer needed). Home is hooks-free again; task-list `pb-28`→`pb-24`.
+- **Tasks**: removed the Small/Medium/Large `<select>` and the difficulty chip. Every task
+  is 20 XP silently (`TASK_XP = DIFFICULTY_XP.SMALL`); cards show a cute `⭐ +20`. Seed
+  tasks normalized to 20 XP each.
+- **Cute extras**: friendlier copy ("🌞 Today", "Add ✨", "No tasks yet — add one to feed
+  your dragon! 🐣"); **one-tap add** (autofocused input + Enter); **tap-the-pet delight**
+  (tap the dragon in the day → it bounces + a ❤️ floats up; `heart-float` keyframes in
+  `index.css`; sleeping = no tap); **softer look** (rounded-3xl cards/inputs/buttons,
+  bigger tap targets, active:scale press states).
+- Verified live: no gems/gift/coins; "Sunny" shown; no difficulty picker/chip; no
+  placeholder tabs; Sleep pill works; input autofocused; pet-tap spawns hearts that
+  auto-clear; `npm run build` green; fresh-server console clean.
+
 ### (2026-06-01) Level-driven evolution + real hunger mechanic ✅
 Plan: `~/.claude/plans/the-level-should-start-validated-metcalfe.md`.
 - **Evolution is now LEVEL-driven, 0-based.** `STAGE_LEVEL` in `lib/stages.ts`:

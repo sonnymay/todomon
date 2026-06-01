@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Creature } from '../types'
 import {
   creatureHungryVideo,
@@ -46,6 +46,20 @@ export default function CreatureScene({
   // night). Falls back to the normal scene if the hungry asset isn't present yet.
   const showHungry = !night && hunger < HUNGRY_THRESHOLD && !hungryVideoFailed
 
+  // Tap-the-pet delight: a little bounce + a floating heart (awake only).
+  const [hearts, setHearts] = useState<number[]>([])
+  const [bounce, setBounce] = useState(false)
+  const heartId = useRef(0)
+
+  function petTheDragon() {
+    if (night) return // it's sleeping 😴
+    const id = heartId.current++
+    setHearts((h) => [...h, id])
+    setTimeout(() => setHearts((h) => h.filter((x) => x !== id)), 900)
+    setBounce(true)
+    setTimeout(() => setBounce(false), 320)
+  }
+
   return (
     <div
       style={{
@@ -56,44 +70,83 @@ export default function CreatureScene({
         backgroundColor: '#fff7ed',
       }}
     >
-      <video
-        key={creature.stage}
-        autoPlay
-        loop
-        muted
-        playsInline
+      {/* pet media (bounces when tapped) */}
+      <div
         style={{
           position: 'absolute',
           inset: 0,
-          height: '100%',
-          width: '100%',
-          objectFit: 'cover',
           zIndex: 0,
+          transform: bounce ? 'scale(1.06)' : 'scale(1)',
+          transition: 'transform 300ms ease-out',
         }}
       >
-        <source src={sceneVideo} type="video/mp4" />
-      </video>
-
-      {showHungry && (
         <video
-          key={`hungry-${creature.stage}`}
+          key={creature.stage}
           autoPlay
           loop
           muted
           playsInline
-          onError={() => setHungryVideoFailed(true)}
           style={{
             position: 'absolute',
             inset: 0,
             height: '100%',
             width: '100%',
             objectFit: 'cover',
-            zIndex: 1,
+            zIndex: 0,
           }}
         >
-          <source src={hungryVideo} type="video/mp4" />
+          <source src={sceneVideo} type="video/mp4" />
         </video>
+
+        {showHungry && (
+          <video
+            key={`hungry-${creature.stage}`}
+            autoPlay
+            loop
+            muted
+            playsInline
+            onError={() => setHungryVideoFailed(true)}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              height: '100%',
+              width: '100%',
+              objectFit: 'cover',
+              zIndex: 1,
+            }}
+          >
+            <source src={hungryVideo} type="video/mp4" />
+          </video>
+        )}
+      </div>
+
+      {/* tap layer — pet the dragon (below the top bar, above the video) */}
+      {!night && (
+        <button
+          type="button"
+          aria-label="Pet your dragon"
+          onClick={petTheDragon}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 5,
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        />
       )}
+
+      {/* floating hearts */}
+      {hearts.map((id) => (
+        <span
+          key={id}
+          className="heart-float pointer-events-none"
+          style={{ position: 'absolute', left: '50%', bottom: '34%', zIndex: 25, fontSize: 30 }}
+        >
+          ❤️
+        </span>
+      ))}
 
       {night && !sleepImageFailed && (
         <img

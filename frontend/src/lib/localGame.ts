@@ -45,11 +45,12 @@ export function seedTasks(): Task[] {
     completed_at: is_done ? now() : null,
   })
 
+  // Every task is worth the same (kept simple — no difficulty).
   return [
     t('Plan my day', 'Review top 3 priorities', 20, true),
-    t('Finish project outline', 'Complete the first draft', 40),
-    t('Workout for 30 minutes', 'Stay healthy and strong', 60),
-    t('Study new topic', 'Learn something new', 40),
+    t('Finish project outline', 'Complete the first draft', 20),
+    t('Workout for 30 minutes', 'Stay healthy and strong', 20),
+    t('Study new topic', 'Learn something new', 20),
     t('Reply to important emails', 'Clear inbox and follow up', 20),
   ]
 }

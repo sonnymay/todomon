@@ -1,11 +1,9 @@
 interface Props {
-  coins: number
-  gems: number
+  petName: string
   onMenu: () => void
-  onComingSoon: (label: string) => void
 }
 
-export default function TopBar({ coins, gems, onMenu, onComingSoon }: Props) {
+export default function TopBar({ petName, onMenu }: Props) {
   return (
     <div className="flex items-center gap-2 px-3 pt-3">
       {/* avatar */}
@@ -13,34 +11,13 @@ export default function TopBar({ coins, gems, onMenu, onComingSoon }: Props) {
         🧒
       </div>
 
-      {/* coins + gems pill */}
-      <div className="flex flex-1 items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 shadow">
-        <span className="flex items-center gap-1 text-sm font-bold text-slate-800">
-          <span className="text-yellow-500">🪙</span>
-          {coins.toLocaleString()}
+      {/* pet name */}
+      <div className="flex flex-1 items-center gap-2 rounded-full bg-white/90 px-4 py-2 shadow">
+        <span className="text-base">🐲</span>
+        <span className="truncate text-sm font-extrabold text-slate-800">
+          {petName}
         </span>
-        <span className="h-4 w-px bg-slate-200" />
-        <span className="flex items-center gap-1 text-sm font-bold text-slate-800">
-          <span className="text-sky-500">💎</span>
-          {gems}
-        </span>
-        <button
-          aria-label="Add currency"
-          onClick={() => onComingSoon('Shop')}
-          className="ml-auto flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
-        >
-          +
-        </button>
       </div>
-
-      {/* gift */}
-      <button
-        aria-label="Rewards"
-        onClick={() => onComingSoon('Rewards')}
-        className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/90 text-xl shadow hover:bg-white"
-      >
-        🎁
-      </button>
 
       {/* menu */}
       <button

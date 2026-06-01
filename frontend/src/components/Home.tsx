@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
 import type { Creature, Task } from '../types'
 import TopBar from './TopBar'
 import CreatureScene from './CreatureScene'
@@ -11,8 +10,6 @@ interface Props {
   tasks: Task[]
   loading: boolean
   error: string | null
-  coins: number
-  gems: number
   hunger: number
   night: boolean
   leveledTo: string | null
@@ -30,8 +27,6 @@ export default function Home({
   tasks,
   loading,
   error,
-  coins,
-  gems,
   hunger,
   night,
   leveledTo,
@@ -43,18 +38,6 @@ export default function Home({
   onDelete,
   onDevEvolve,
 }: Props) {
-  // Lightweight feedback for controls that aren't built yet, so they don't feel broken.
-  const [toast, setToast] = useState<string | null>(null)
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(() => () => {
-    if (toastTimer.current) clearTimeout(toastTimer.current)
-  }, [])
-  function comingSoon(label: string) {
-    setToast(`${label} — coming soon ✨`)
-    if (toastTimer.current) clearTimeout(toastTimer.current)
-    toastTimer.current = setTimeout(() => setToast(null), 1800)
-  }
-
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col overflow-hidden bg-[#fdf6e3] shadow-2xl sm:my-4 sm:min-h-[calc(100vh-2rem)] sm:rounded-[2rem]">
       {creature ? (
@@ -64,14 +47,7 @@ export default function Home({
           hunger={hunger}
           justLeveledTo={leveledTo}
           celebration={celebrate}
-          topBar={
-            <TopBar
-              coins={coins}
-              gems={gems}
-              onMenu={onSignOut}
-              onComingSoon={comingSoon}
-            />
-          }
+          topBar={<TopBar petName={creature.name} onMenu={onSignOut} />}
         />
       ) : (
         <div className="flex h-48 items-center justify-center bg-amber-200 text-slate-600">
@@ -92,8 +68,8 @@ export default function Home({
         </div>
       )}
 
-      {/* pb leaves room so the floating SLEEP button + bottom nav never cover the last task */}
-      <div className="flex-1 pt-5 pb-28">
+      {/* pb leaves room so the bottom Sleep bar never covers the last task */}
+      <div className="flex-1 pt-5 pb-24">
         {error && (
           <p className="mx-3 mb-3 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700">
             {error}
@@ -107,22 +83,7 @@ export default function Home({
         />
       </div>
 
-      {toast && (
-        <div
-          className="pointer-events-none fixed inset-x-0 bottom-24 z-30 flex justify-center px-4"
-          role="status"
-        >
-          <span className="rounded-full bg-slate-900/90 px-4 py-2 text-sm font-semibold text-white shadow-lg">
-            {toast}
-          </span>
-        </div>
-      )}
-
-      <BottomNav
-        night={night}
-        onToggleNight={onToggleNight}
-        onComingSoon={comingSoon}
-      />
+      <BottomNav night={night} onToggleNight={onToggleNight} />
     </div>
   )
 }

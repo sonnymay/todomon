@@ -25,3 +25,23 @@ body {
     Roboto,
     sans-serif;
 }
+
+/* Tap-the-pet delight: a heart that floats up and fades. */
+@keyframes heart-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -10px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -90px) scale(1.3);
+  }
+}
+
+.heart-float {
+  animation: heart-float 0.9s ease-out forwards;
+}

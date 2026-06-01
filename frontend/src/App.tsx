@@ -52,10 +52,7 @@ export default function App() {
   // follows local time.
   const [night, setNight] = useState(DEV_NO_AUTH ? false : isNight())
 
-  // Coins/gems are still cosmetic placeholders (owned here so they can be wired to real
-  // profile data later). Hunger is real: decays over time, +1 per task (see useHunger).
-  const [coins] = useState(1250)
-  const [gems] = useState(45)
+  // Hunger is real: decays over time, +1 per task (see useHunger).
   const { hunger, onTaskCompleted } = useHunger()
 
   useEffect(() => {
@@ -202,8 +199,6 @@ export default function App() {
         tasks={tasks}
         loading={loading}
         error={error}
-        coins={coins}
-        gems={gems}
         hunger={hunger}
         night={night}
         leveledTo={leveledTo}
