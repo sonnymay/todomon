@@ -9,6 +9,14 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) App Store readiness roadmap added 📋
+Wrote `docs/APP_STORE_ROADMAP.md` — a detailed, Codex-ready task list (Epics 0–18) to take
+ToDoMon from dev-mode web prototype to a sellable iOS app. Key framing: **it's a web app and
+cannot ship on the App Store without native wrapping (Capacitor = Epic 0, the blocker).** Other
+hard gates captured: remove `DEV_NO_AUTH`, real auth + Supabase data, account deletion (Apple
+requirement), StoreKit IAP for gems (no web payments), privacy policy/ToS, video asset
+compression, RLS audit, tests/CI, TestFlight. Hand Codex that file to execute top-to-bottom.
+
 ### (2026-06-01) Interaction fixes — touch delete + dead-control feedback ✅
 - **Delete was unusable on touch** — the task ✕ was `opacity-0 group-hover:opacity-100`,
   so on a mobile app (no hover) you could never delete a task. Made it always visible
