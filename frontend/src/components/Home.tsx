@@ -14,8 +14,10 @@ interface Props {
   night: boolean
   leveledTo: string | null
   celebrate: string | null
+  greeting: string | null
   onToggleNight: () => void
   onSignOut: () => void
+  onRename: (name: string) => void
   onAdd: (title: string, xpReward: number) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
   onDelete: (taskId: string) => Promise<void>
@@ -31,8 +33,10 @@ export default function Home({
   night,
   leveledTo,
   celebrate,
+  greeting,
   onToggleNight,
   onSignOut,
+  onRename,
   onAdd,
   onComplete,
   onDelete,
@@ -47,7 +51,14 @@ export default function Home({
           hunger={hunger}
           justLeveledTo={leveledTo}
           celebration={celebrate}
-          topBar={<TopBar petName={creature.name} onMenu={onSignOut} />}
+          greeting={greeting}
+          topBar={
+            <TopBar
+              petName={creature.name}
+              onMenu={onSignOut}
+              onRename={onRename}
+            />
+          }
         />
       ) : (
         <div className="flex h-48 items-center justify-center bg-amber-200 text-slate-600">

@@ -10,9 +10,11 @@ import {
 } from './lib/api'
 import {
   DEV_NO_AUTH,
+  getStoredPetName,
   localTask,
   seedCreature,
   seedTasks,
+  setStoredPetName,
 } from './lib/localGame'
 import type { Creature, Task } from './types'
 import {
@@ -48,6 +50,8 @@ export default function App() {
   const [leveledTo, setLeveledTo] = useState<string | null>(null)
   // Transient "Great job!" message — set only on a real completion, then cleared.
   const [celebrate, setCelebrate] = useState<string | null>(null)
+  // "Your dragon missed you!" greeting — shown once when returning on a new day.
+  const [greeting, setGreeting] = useState<string | null>(null)
   // Dev mode opens on the bright day scene (matches the mockup); real mode
   // follows local time.
   const [night, setNight] = useState(DEV_NO_AUTH ? false : isNight())
@@ -95,6 +99,29 @@ export default function App() {
       setTasks([])
     }
   }, [session, loadData])
+
+  // Daily "missed you" greeting — once per calendar day for returning users.
+  useEffect(() => {
+    const KEY = 'todomon_last_seen'
+    try {
+      const today = new Date().toDateString()
+      const last = localStorage.getItem(KEY)
+      localStorage.setItem(KEY, today)
+      if (last && last !== today) {
+        setGreeting(`${getStoredPetName()} missed you! 🐲`)
+        const timer = setTimeout(() => setGreeting(null), 4500)
+        return () => clearTimeout(timer)
+      }
+    } catch {
+      // storage unavailable — skip the greeting
+    }
+  }, [])
+
+  function handleRename(name: string) {
+    setStoredPetName(name)
+    setCreature((c) => (c ? { ...c, name } : c))
+    // TODO(real mode): persist the name to Supabase when DEV_NO_AUTH is off.
+  }
 
   function applyLevelUp(prevStage: string | undefined, nextStage: string) {
     if (prevStage && nextStage !== prevStage) {
@@ -203,6 +230,8 @@ export default function App() {
         night={night}
         leveledTo={leveledTo}
         celebrate={celebrate}
+        greeting={greeting}
+        onRename={handleRename}
         onToggleNight={() => setNight((n) => !n)}
         onSignOut={() => {
           if (!DEV_NO_AUTH) void supabase.auth.signOut()

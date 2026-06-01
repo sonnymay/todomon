@@ -9,6 +9,23 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Cute polish — rename, hide level, bigger pet, daily greeting ✅
+- **Tap-to-rename the pet**: TopBar name is now an inline editable field (tap → input,
+  Enter/blur to save, Esc to cancel, 16-char cap). `App.handleRename` updates state and
+  persists to `localStorage` (`todomon_pet_name`); `seedCreature` reads it
+  (`getStoredPetName`/`setStoredPetName` in `localGame.ts`) so it survives refresh.
+  Real-mode Supabase persistence is a TODO (noted in code).
+- **Level number hidden**: `StatsPanel` dropped the 🏅 level badge and the numeric
+  XP readout. Now just two friendly bars — **🍖 Food** (hunger) and **🌟 Grow** (level
+  progress) — plus a "Next: <Stage>" caption (no "Lv N").
+- **Bigger pet**: `CreatureScene` `SCENE_HEIGHT` 440 → 500 so the dragon dominates.
+- **Daily greeting**: `App` shows "<Name> missed you! 🐲" once per calendar day for
+  returning users (localStorage `todomon_last_seen`), rendered as a welcome bubble in
+  `CreatureScene` (new `greeting` prop), auto-clears after 4.5s. First-ever visit: none.
+- **Seed tasks** normalized to 20 XP each (all "small").
+- Verified live: rename → "Blaze" persists across reload; greeting shows on a
+  new-day reload; no level number; bigger scene; `npm run build` green; console clean.
+
 ### (2026-06-01) Simplify & cute-ify (strip clutter) ✅
 Plan: `~/.claude/plans/the-level-should-start-validated-metcalfe.md`. Goal: kid-friendly,
 simple, cute.

@@ -12,12 +12,14 @@ interface Props {
   hunger: number
   justLeveledTo: string | null
   celebration: string | null
+  greeting: string | null
   topBar: ReactNode
 }
 
 // Stage media are full-scene assets. Idle uses looping MP4; sleep uses a static
-// PNG when present, with the idle video still available as fallback.
-const SCENE_HEIGHT = 440
+// PNG when present, with the idle video still available as fallback. The pet is the
+// star — keep the scene tall so it dominates the screen.
+const SCENE_HEIGHT = 500
 const HUNGRY_THRESHOLD = 20
 
 export default function CreatureScene({
@@ -26,6 +28,7 @@ export default function CreatureScene({
   hunger,
   justLeveledTo,
   celebration,
+  greeting,
   topBar,
 }: Props) {
   const sceneVideo = creatureSceneVideo(creature.stage)
@@ -168,6 +171,17 @@ export default function CreatureScene({
       <div style={{ position: 'absolute', insetInline: 0, top: 0, zIndex: 20 }}>
         {topBar}
       </div>
+
+      {/* welcome-back greeting — shown once when returning on a new day */}
+      {greeting && !celebration && (
+        <div
+          className="inline-flex items-center gap-2 rounded-2xl bg-white/95 px-3 py-2 shadow-md backdrop-blur"
+          style={{ position: 'absolute', left: '50%', top: 80, transform: 'translateX(-50%)', zIndex: 20, maxWidth: 260 }}
+        >
+          <span className="text-xl">💛</span>
+          <p className="text-sm font-extrabold leading-tight text-slate-900">{greeting}</p>
+        </div>
+      )}
 
       {/* speech bubble — only after a real task completion (not on load) */}
       {celebration && (

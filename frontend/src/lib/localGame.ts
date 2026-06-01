@@ -13,6 +13,26 @@ const localId = (): string => `local-${++counter}`
 const DEV_USER = 'dev-user'
 const now = (): string => new Date().toISOString()
 
+// Pet name persists in dev mode so a rename survives refresh.
+const PET_NAME_KEY = 'todomon_pet_name'
+export const DEFAULT_PET_NAME = 'Sunny'
+
+export function getStoredPetName(): string {
+  try {
+    return localStorage.getItem(PET_NAME_KEY) || DEFAULT_PET_NAME
+  } catch {
+    return DEFAULT_PET_NAME
+  }
+}
+
+export function setStoredPetName(name: string): void {
+  try {
+    localStorage.setItem(PET_NAME_KEY, name)
+  } catch {
+    // storage unavailable — name stays in memory only
+  }
+}
+
 // Seeded so the screen looks like the mockup (an evolved creature mid-progress).
 // Under the ramping curve, 14,750 XP ≈ level 50 → champion stage.
 export function seedCreature(): Creature {
@@ -20,7 +40,7 @@ export function seedCreature(): Creature {
   return {
     id: localId(),
     user_id: DEV_USER,
-    name: 'Sunny',
+    name: getStoredPetName(),
     stage: stageForXp(xp),
     xp,
     created_at: now(),
