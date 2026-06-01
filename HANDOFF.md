@@ -9,6 +9,25 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Hungry Sun Dragon videos added for 5 stages ✅
+Moved existing hungry-state MP4s from `~/Downloads/` into
+`frontend/public/assets/creatures/`:
+- `sun_dragon_egg_hungry.mp4`
+- `sun_dragon_hatchling_hungry.mp4`
+- `sun_dragon_baby_hungry.mp4`
+- `sun_dragon_rookie_hungry.mp4`
+- `sun_dragon_champion_hungry.mp4`
+
+`frontend/src/lib/stages.ts` now maps hungry videos only for stages with shipped assets.
+`ultimate` and `mega` intentionally return `null`, so `CreatureScene` keeps the normal
+idle video immediately instead of requesting missing files. When the missing files arrive,
+add them to `HUNGRY_VIDEO_BY_STAGE`.
+
+Verification:
+- `npm run build` passes.
+- Vite serves all five hungry MP4s at `/assets/creatures/...` with HTTP 200.
+- `ultimate`/`mega` hungry files remain absent as expected; fallback path stays idle video.
+
 ### (2026-06-01) Cute polish — rename, hide level, bigger pet, daily greeting ✅
 - **Tap-to-rename the pet**: TopBar name is now an inline editable field (tap → input,
   Enter/blur to save, Esc to cancel, 16-char cap). `App.handleRename` updates state and

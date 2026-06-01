@@ -79,20 +79,19 @@ export function creatureSleepImage(stage: Stage): string {
   return `/assets/creatures/${SLEEP_IMAGE_BY_STAGE[stage]}`
 }
 
-// "Very hungry" scene video (shown when hunger < 20 and awake). Generated separately;
-// CreatureScene falls back to the normal scene video if the file is missing.
-const HUNGRY_VIDEO_BY_STAGE: Record<Stage, string> = {
+// "Very hungry" scene video (shown when hunger < 20 and awake). Missing stages
+// intentionally return null so CreatureScene keeps the normal idle scene.
+const HUNGRY_VIDEO_BY_STAGE: Partial<Record<Stage, string>> = {
   egg: 'sun_dragon_egg_hungry.mp4',
   hatchling: 'sun_dragon_hatchling_hungry.mp4',
   baby: 'sun_dragon_baby_hungry.mp4',
   rookie: 'sun_dragon_rookie_hungry.mp4',
   champion: 'sun_dragon_champion_hungry.mp4',
-  ultimate: 'sun_dragon_ultimate_hungry.mp4',
-  mega: 'sun_dragon_mega_hungry.mp4',
 }
 
-export function creatureHungryVideo(stage: Stage): string {
-  return `/assets/creatures/${HUNGRY_VIDEO_BY_STAGE[stage]}`
+export function creatureHungryVideo(stage: Stage): string | null {
+  const file = HUNGRY_VIDEO_BY_STAGE[stage]
+  return file ? `/assets/creatures/${file}` : null
 }
 
 // Player level from total XP — inverse of xpForLevel. 0-based (level 0 = egg).

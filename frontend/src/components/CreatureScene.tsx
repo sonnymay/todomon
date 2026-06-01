@@ -47,7 +47,8 @@ export default function CreatureScene({
 
   // Very-hungry state shows a distinct video — but only while awake (sleep wins at
   // night). Falls back to the normal scene if the hungry asset isn't present yet.
-  const showHungry = !night && hunger < HUNGRY_THRESHOLD && !hungryVideoFailed
+  const showHungry =
+    !night && hunger < HUNGRY_THRESHOLD && hungryVideo && !hungryVideoFailed
 
   // Tap-the-pet delight: a little bounce + a floating heart (awake only).
   const [hearts, setHearts] = useState<number[]>([])
