@@ -9,7 +9,71 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
-### 0a. Creature opacity + GitHub publish ✅
+### 0a. Sun Dragon full-scene media — REVIEWED & VERIFIED ✅
+The app has switched away from transparent creature WebMs for the main scene. Idle
+state uses **opaque full-scene MP4 per stage**; sleep/night state uses **full-scene
+static PNG per stage**. `CreatureScene.tsx` renders both full-bleed with
+`object-fit: cover`.
+
+Current scene assets live in `frontend/public/assets/creatures/`:
+- `sun_dragon_egg_scene.mp4`
+- `sun_dragon_hatchling_scene.mp4`
+- `sun_dragon_baby_scene.mp4`
+- `sun_dragon_rookie_scene.mp4`
+- `sun_dragon_champion_scene.mp4`
+- `sun_dragon_ultimate_scene.mp4`
+- `sun_dragon_mega_scene.mp4`
+- `sun_dragon_egg_sleeping.png`
+- `sun_dragon_hatchling_sleeping.png`
+- `sun_dragon_baby_sleeping.png`
+- `sun_dragon_rookie_sleeping.png`
+- `sun_dragon_champion_sleeping.png`
+- `sun_dragon_ultimate_sleeping.png`
+- `sun_dragon_mega_sleeping.png`
+
+Implementation notes:
+- `frontend/src/lib/stages.ts` maps every evolution stage to its exact
+  `sun_dragon_*_scene.mp4` file via `creatureSceneVideo(stage)` and its exact
+  `sun_dragon_*_sleeping.png` file via `creatureSleepImage(stage)`.
+- `CreatureScene.tsx` always renders the idle video underneath; when `night=true`, it
+  overlays the matching sleeping PNG. If the PNG fails to load, the image hides and
+  the idle video remains visible as fallback.
+- Existing app overlays remain above media: top bar, speech bubble, level badge,
+  controls, and the night/sleep dim overlay.
+- CSS background images and transparent WebM/keying/blend-mode logic are bypassed
+  for the visible creature scene.
+
+Important git state:
+- Remote `origin/main` may still be behind this local full-scene MP4 work.
+- The previous transparent-WebM pipeline files and generated clips may still be dirty
+  in the local worktree from earlier attempts. Do not revert them without checking
+  whether the user wants to keep or discard that old pipeline work.
+
+Verification loop:
+- Run `npm run build` in `frontend/`.
+- Run or reload `http://localhost:5173/`.
+- Click `Dev: Evolve →` through all 7 stages with sleep off: confirm each stage loads
+  matching `sun_dragon_*_scene.mp4` with computed `object-fit: cover`.
+- Toggle `SLEEP`, click `Dev: Evolve →` through all 7 stages again, and confirm each
+  stage displays matching `sun_dragon_*_sleeping.png` with computed `object-fit: cover`.
+
+**Review result (2026-06-01):** all checks pass.
+- All 7 `sun_dragon_*_scene.mp4` present, plus all 7 `sun_dragon_*_sleeping.png`.
+- `CreatureScene.tsx` renders full-bleed idle `<video object-fit:cover>` and sleep
+  `<img object-fit:cover>`; idle video remains fallback if a sleep PNG is missing.
+- Dev-Evolve swept all 7 stages → each loads its exact matching file, zero errors.
+- Top bar / XP / speech bubble / level badge overlays sit above the video; sleep toggle
+  applies the `rgba(30,27,75,0.40)` night dim above sleeping images.
+- No green/white/keying/alpha/blend-mode in the visible scene path. `grep` finds no
+  `creatureSources`/`.webm`/`chromakey`/`mix-blend` in `src/` (the only `day.png` ref is
+  the Auth/login screen, not the creature scene).
+- Fresh dev-server start → console clean. (Earlier `creatureSources` HMR errors were
+  stale buffer from a mid-edit state; gone after restart. Build is authoritative & green.)
+- The old transparent-WebM/keying pipeline (`encode-creatures.sh`,
+  `key-creature-background.mjs`, `*.webm`) is now UNUSED by the app but still on disk —
+  safe to delete in a later cleanup if desired.
+
+### 0b. Creature opacity + GitHub publish ✅
 The creature still looked see-through after the first transparent-WebM pass. Root
 cause: global `colorkey` removed white creature details (eyes, claws, chest highlights)
 as well as the white background, creating transparent holes inside the dragon.
@@ -29,14 +93,14 @@ Verification:
 
 GitHub publish complete: `https://github.com/sonnymay/todomon.git` on `main`.
 
-### 0b. UI review — 9 ranked issues all fixed ✅
+### 0c. UI review — 9 ranked issues all fixed ✅
 A full UI review flagged 9 issues (3 critical). All resolved and verified in the
 browser (computed styles + magenta-composite frame checks; the preview MCP's
 screenshots were flaky, so trust DOM/`preview_inspect` over them):
 
-1. **Creature "ghost" effect (was `mix-blend-mode: multiply`)** — removed. See 0c.
+1. **Creature "ghost" effect (was `mix-blend-mode: multiply`)** — removed. See 0d.
 2. **Black letterbox bars on champion/ultimate/mega** — these clips were a 720×720
-   dragon-on-white letterboxed to 720×1280; now cropped + keyed. See 0c.
+   dragon-on-white letterboxed to 720×1280; now cropped + keyed. See 0d.
 3. **SLEEP button covered the Stats tab** — `BottomNav.tsx` now floats the button
    ABOVE the nav row (`bottom-16 right-4`), clear of all 4 tabs.
 4. **No tasks-done counter** — added a "✅ N done today" pill in `TaskList.tsx`
@@ -51,26 +115,26 @@ screenshots were flaky, so trust DOM/`preview_inspect` over them):
    `App.tsx` (`cheer()`), set ONLY on a real completion, auto-clears after 3.5s.
 9. **Level badge isolated** — moved into the XP row as an inline pill in `StatsPanel.tsx`.
 
-### 0c. Creature videos re-encoded to transparent WebM (alpha) ✅
+### 0d. Creature videos re-encoded to transparent WebM (alpha) ✅
 The source `.mp4`s have a **flat baked-in background** and were NOT uniform:
 - egg / hatchling / rookie: **544×544**, dragon on **WHITE**.
 - champion / ultimate / mega: **720×1280** = a **720×720 dragon-on-WHITE** square with
   **BLACK letterbox bars** top+bottom (cropdetect → `crop=720:720:0:280`).
 
-Fix: `frontend/scripts/encode-creatures.sh` crops the bars (portrait clips only)
+Historical fix: `frontend/scripts/encode-creatures.sh` crops the bars (portrait clips only)
 then flood-fill keys WHITE background → transparency, outputting VP9 `.webm` with
 alpha beside the originals. The `.mp4`s are **kept as a `<source>` fallback**.
-`CreatureScene.tsx` now renders `<video><source …webm><source …mp4></video>` with
-**no mix-blend-mode**.
+This transparent-WebM rendering path is now bypassed by the full-scene MP4 approach
+described in 0a.
 Re-run after changing assets: `bash scripts/encode-creatures.sh` (needs `ffmpeg`
 with `libvpx-vp9`; verified present, v8.0.1).
-- Tuning lives in the script: `THRESHOLD=195`. Lower it only if a source clip still
+- Tuning lives in the script: `THRESHOLD=150`. Lower it only if a source clip still
   has off-white background left around the edge; raise it if edge-connected highlights
-  get cut too aggressively.
-- `lib/stages.ts` now exports `creatureSources(stage) → {webm, mp4}` (replaced the
-  old single-URL `creatureAsset()`); the `baby→hatchling` fallback still applies.
+  get cut too aggressively. Per-stage `grade` (4th `JOBS` field) deepens washed-out art
+  AFTER keying in the legacy pipeline.
+- `lib/stages.ts` now exports `creatureSceneVideo(stage)` for the full-scene MP4s.
 
-### 0d. Tailwind was generating NO CSS ✅
+### 0e. Tailwind was generating NO CSS ✅
 The Home screen rendered unstyled (transparent cards, no colors) because **Tailwind
 v4 emitted only its theme layer and ZERO utilities** (built CSS frozen at ~4 KB).
 Root cause: Tailwind v4 auto-detects sources via the **git repo root**; this is **not
@@ -131,7 +195,7 @@ code (Sections 5/6) is intact and was verified before dev mode was added.
 - Full vertical slice built + verified: email auth → protected app; auto-provisioned
   creature+profile on signup (DB trigger); create/complete/delete tasks (RLS per user);
   completing a task awards XP + evolves the creature atomically (RPC).
-- Mockup-matching UI: transparent looping creature video, day/night scene, SLEEP toggle,
+- Mockup-matching UI: full-scene looping creature MP4, SLEEP dim toggle,
   Hunger/XP bars, inline Level badge, "done today" counter, styled task cards.
 - `npm run build` passes clean (tsc + vite, 83 modules; CSS ~25 KB).
 - Python E2E passed earlier: signup → auto creature → RLS → XP → evolution → double-complete rejection.
@@ -192,27 +256,28 @@ src/
     supabaseClient.ts  # browser client (anon key)
     api.ts             # fetchCreature, fetchTasks, addTask, completeTask(rpc), deleteTask
     localGame.ts       # DEV_NO_AUTH flag + seed data (dev mode)
-    stages.ts          # STAGE_ORDER/THRESHOLDS/LABEL, creatureSources()→{webm,mp4},
+    stages.ts          # STAGE_ORDER/THRESHOLDS/LABEL, creatureSceneVideo(), creatureSleepImage(),
                        #   nextStageInfo(), levelFromXp(), MAX_XP, DIFFICULTY_XP, stageForXp()
   components/
     Auth.tsx           # email/password sign in + sign up
     Home.tsx           # screen layout; COSMETIC placeholder constants (COINS/GEMS/HUNGER)
     TopBar.tsx         # avatar, coins, gems, +, gift, ☰ (☰ currently = sign out)
-    CreatureScene.tsx  # day/night bg, speech bubble (celebration-gated), transparent <video>
+    CreatureScene.tsx  # full-scene MP4 idle, full-scene PNG sleep, overlays, night dim
     StatsPanel.tsx     # Hunger bar (cosmetic), XP bar (real) with inline Level pill
     TaskList.tsx       # add form + "done today" counter + task feed
     BottomNav.tsx      # Home/Inventory/Quests/Stats tabs + floating SLEEP button (above nav)
 scripts/
-  encode-creatures.sh  # mp4 → transparent webm (crop + flood-fill key); see 0c
-public/assets/creatures # egg/hatchling/rookie/champion/ultimate/mega .mp4 + .webm (baby missing)
+  encode-creatures.sh  # mp4 → transparent webm (crop + flood-fill key); see 0d
+public/assets/creatures # sun_dragon_*_scene.mp4 idle videos + sun_dragon_*_sleeping.png sleep images
 ```
 
 Data flow: `App` owns state, passes to `Home` (presentational). Auth via `supabase.auth`
 + `onAuthStateChange`; game data loaded on session.
 
-**Creature rendering:** `<video autoPlay loop muted playsInline key={stage}>` with
-`<source webm>` + `<source mp4>`. `muted` is required for autoplay. Transparent webm
-composites directly on the scene — no mix-blend-mode (see 0b for why/how).
+**Creature rendering:** idle state uses `<video autoPlay loop muted playsInline key={stage}>`
+with one opaque full-scene MP4 source. Sleep/night state overlays the matching static
+PNG. Both fill the scene area with `object-fit: cover`; UI overlays and the night dim
+layer sit above them.
 
 ## 7. Design decisions & data mappings
 
@@ -227,9 +292,9 @@ composites directly on the scene — no mix-blend-mode (see 0b for why/how).
 
 ## 8. Known gaps / TODO (pick up here)
 
-1. **`baby` assets MISSING** — no `baby.mp4`/`baby.webm`. Falls back to hatchling via
-   `ASSET_FALLBACK` in `lib/stages.ts`. Add both files (run `encode-creatures.sh`),
-   then remove the fallback entry.
+1. **Old transparent-creature pipeline is currently bypassed.** The visible scene now
+   uses full-scene opaque MP4s, so do not spend more time on green-screen/alpha/keying
+   unless the user explicitly asks to revive transparent creature compositing.
 2. **Cosmetic-only stats** in `Home.tsx`: `COINS=1250`, `GEMS=45`, `HUNGER=72` — NOT
    persisted. To make real: add columns (`todomon_profiles.coins/gems`; a decaying
    hunger mechanic) + API + UI.

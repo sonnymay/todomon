@@ -32,26 +32,32 @@ export const STAGE_LABEL: Record<Stage, string> = {
   mega: 'Mega',
 }
 
-// baby assets are not present yet — fall back to hatchling until added.
-// Drop baby.mp4 + baby.webm in /assets/creatures/ and remove this entry.
-const ASSET_FALLBACK: Partial<Record<Stage, Stage>> = {
-  baby: 'hatchling',
+const SCENE_VIDEO_BY_STAGE: Record<Stage, string> = {
+  egg: 'sun_dragon_egg_scene.mp4',
+  hatchling: 'sun_dragon_hatchling_scene.mp4',
+  baby: 'sun_dragon_baby_scene.mp4',
+  rookie: 'sun_dragon_rookie_scene.mp4',
+  champion: 'sun_dragon_champion_scene.mp4',
+  ultimate: 'sun_dragon_ultimate_scene.mp4',
+  mega: 'sun_dragon_mega_scene.mp4',
 }
 
-// Each creature is served as a transparent-background .webm (alpha, preferred)
-// with the original .mp4 as a fallback <source>. The .webm files are generated
-// from the .mp4s by frontend/scripts/encode-creatures.sh.
-export interface CreatureSources {
-  webm: string
-  mp4: string
+const SLEEP_IMAGE_BY_STAGE: Record<Stage, string> = {
+  egg: 'sun_dragon_egg_sleeping.png',
+  hatchling: 'sun_dragon_hatchling_sleeping.png',
+  baby: 'sun_dragon_baby_sleeping.png',
+  rookie: 'sun_dragon_rookie_sleeping.png',
+  champion: 'sun_dragon_champion_sleeping.png',
+  ultimate: 'sun_dragon_ultimate_sleeping.png',
+  mega: 'sun_dragon_mega_sleeping.png',
 }
 
-export function creatureSources(stage: Stage): CreatureSources {
-  const file = ASSET_FALLBACK[stage] ?? stage
-  return {
-    webm: `/assets/creatures/${file}.webm`,
-    mp4: `/assets/creatures/${file}.mp4`,
-  }
+export function creatureSceneVideo(stage: Stage): string {
+  return `/assets/creatures/${SCENE_VIDEO_BY_STAGE[stage]}`
+}
+
+export function creatureSleepImage(stage: Stage): string {
+  return `/assets/creatures/${SLEEP_IMAGE_BY_STAGE[stage]}`
 }
 
 // Mega threshold doubles as the "full" XP for the headline XP bar.

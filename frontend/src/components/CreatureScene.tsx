@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { Creature } from '../types'
-import { creatureSources } from '../lib/stages'
+import { creatureSceneVideo, creatureSleepImage } from '../lib/stages'
 
 interface Props {
   creature: Creature
@@ -10,12 +10,9 @@ interface Props {
   topBar: ReactNode
 }
 
-// The creature videos are now transparent-background .webm (with .mp4 fallback),
-// all cropped to square — so they composite directly onto the day/night scene
-// with NO mix-blend-mode (which previously ghosted the dragon) and NO black
-// letterbox bars. A square box with object-contain means no clipping at any stage.
+// Stage media are full-scene assets. Idle uses looping MP4; sleep uses a static
+// PNG when present, with the idle video still available as fallback.
 const SCENE_HEIGHT = 380
-const CREATURE_SIZE = 320 // square; matches the square source clips
 
 export default function CreatureScene({
   creature,
@@ -24,10 +21,13 @@ export default function CreatureScene({
   celebration,
   topBar,
 }: Props) {
-  const bg = night
-    ? '/assets/backgrounds/night.png'
-    : '/assets/backgrounds/day.png'
-  const sources = creatureSources(creature.stage)
+  const sceneVideo = creatureSceneVideo(creature.stage)
+  const sleepImage = creatureSleepImage(creature.stage)
+  const [sleepImageFailed, setSleepImageFailed] = useState(false)
+
+  useEffect(() => {
+    setSleepImageFailed(false)
+  }, [sleepImage])
 
   return (
     <div
@@ -36,11 +36,43 @@ export default function CreatureScene({
         width: '100%',
         height: SCENE_HEIGHT,
         overflow: 'hidden',
-        backgroundImage: `url(${bg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundColor: '#fff7ed',
       }}
     >
+      <video
+        key={creature.stage}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          inset: 0,
+          height: '100%',
+          width: '100%',
+          objectFit: 'cover',
+          zIndex: 0,
+        }}
+      >
+        <source src={sceneVideo} type="video/mp4" />
+      </video>
+
+      {night && !sleepImageFailed && (
+        <img
+          src={sleepImage}
+          alt=""
+          onError={() => setSleepImageFailed(true)}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            height: '100%',
+            width: '100%',
+            objectFit: 'cover',
+            zIndex: 1,
+          }}
+        />
+      )}
+
       {/* top bar overlaid on the scene */}
       <div style={{ position: 'absolute', insetInline: 0, top: 0, zIndex: 20 }}>
         {topBar}
@@ -61,28 +93,6 @@ export default function CreatureScene({
           </div>
         </div>
       )}
-
-      {/* creature — transparent webm, autoplay + loop = continuous animation */}
-      <video
-        key={creature.stage}
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          height: CREATURE_SIZE,
-          width: CREATURE_SIZE,
-          objectFit: 'contain',
-          zIndex: 10,
-        }}
-      >
-        <source src={sources.webm} type="video/webm" />
-        <source src={sources.mp4} type="video/mp4" />
-      </video>
 
       {/* night dims the scene */}
       {night && (
