@@ -13,43 +13,48 @@
 # The .mp4 originals are LEFT IN PLACE as a fallback <source>. This writes new
 # .webm files beside them.
 #
-# colorkey=COLOR:similarity:blend — tight similarity so the dragon's own light
-# highlights survive; blend stays at 0 so the creature itself stays fully opaque.
+# Transparency is made with a border flood-fill key, not ffmpeg colorkey. That
+# removes only white background connected to the frame edge, so internal white
+# details (eyes, claws, chest highlights) stay opaque instead of becoming holes.
 #
 # Usage:  bash scripts/encode-creatures.sh
 set -euo pipefail
 
-DIR="$(cd "$(dirname "$0")/.." && pwd)/public/assets/creatures"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DIR="$(cd "$SCRIPT_DIR/.." && pwd)/public/assets/creatures"
 cd "$DIR"
 
-KEY="0xFFFFFF"
-SIM="0.14"
-BLEND="0"
+THRESHOLD="235"
+KEY_SCRIPT="$SCRIPT_DIR/key-creature-background.mjs"
 
-# stage:extra_vf   (crop for the letterboxed portrait clips; empty for squares)
+# stage|extra_vf|size   (crop for the letterboxed portrait clips; empty for squares)
 JOBS=(
-  "egg:"
-  "hatchling:"
-  "rookie:"
-  "champion:crop=720:720:0:280,"
-  "ultimate:crop=720:720:0:280,"
-  "mega:crop=720:720:0:280,"
+  "egg||544"
+  "hatchling||544"
+  "rookie||544"
+  "champion|crop=720:720:0:280,|720"
+  "ultimate|crop=720:720:0:280,|720"
+  "mega|crop=720:720:0:280,|720"
 )
 
 for job in "${JOBS[@]}"; do
-  stage="${job%%:*}"
-  extra="${job#*:}"
+  IFS="|" read -r stage extra size <<< "$job"
   src="$stage.mp4"
   out="$stage.webm"
   if [ ! -f "$src" ]; then
     echo "skip $src (missing)"
     continue
   fi
-  echo "encoding $src -> $out (${extra}colorkey=$KEY:$SIM:$BLEND)"
-  ffmpeg -hide_banner -loglevel error -y -i "$src" \
-    -vf "${extra}colorkey=${KEY}:${SIM}:${BLEND},format=yuva420p" \
-    -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 30 -an \
-    "$out"
+  fps="$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=nw=1:nk=1 "$src")"
+  echo "encoding $src -> $out (${extra}border flood-fill threshold=$THRESHOLD)"
+  ffmpeg -hide_banner -loglevel error -i "$src" \
+    -vf "${extra}format=rgba" \
+    -f rawvideo -pix_fmt rgba - \
+    | node "$KEY_SCRIPT" "$size" "$size" "$THRESHOLD" \
+    | ffmpeg -hide_banner -loglevel error -y \
+      -f rawvideo -pix_fmt rgba -s "${size}x${size}" -r "$fps" -i - \
+      -c:v libvpx-vp9 -pix_fmt yuva420p -auto-alt-ref 0 -b:v 0 -crf 30 -an \
+      "$out"
 done
 
 echo "done."

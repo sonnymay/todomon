@@ -9,21 +9,23 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
-### 0a. Creature opacity + GitHub publish prep ✅
-The creature still looked slightly see-through after the first transparent-WebM pass.
-Fix: `frontend/scripts/encode-creatures.sh` now uses hard alpha
-(`colorkey=0xFFFFFF:0.14:0`) instead of blended alpha. All existing `.webm` creature
-clips were re-encoded from the source `.mp4`s with this setting, so the creature stays
-fully opaque while the keyed white background remains transparent.
+### 0a. Creature opacity + GitHub publish ✅
+The creature still looked see-through after the first transparent-WebM pass. Root
+cause: global `colorkey` removed white creature details (eyes, claws, chest highlights)
+as well as the white background, creating transparent holes inside the dragon.
+
+Fix: `frontend/scripts/encode-creatures.sh` now pipes raw RGBA frames through
+`frontend/scripts/key-creature-background.mjs`, which flood-fills only white pixels
+connected to the frame border. Internal white highlights remain fully opaque. All
+existing `.webm` creature clips were re-encoded from source `.mp4`s with this method.
 
 Verification:
 - Chrome reload at `http://localhost:5173/`: `champion.webm` playing, `opacity: 1`,
-  `mix-blend-mode: normal`, no black bars.
+  `mix-blend-mode: normal`, no black bars, and alpha mask has no holes inside the
+  creature silhouette.
 - `npm run build` passed in `frontend/`.
 
-GitHub target for first publish: `https://github.com/sonnymay/todomon.git` on `main`.
-Root `.gitignore` added so `.env`, `.venv`, `node_modules`, `dist`, caches, and
-`.DS_Store` files stay out of Git.
+GitHub publish complete: `https://github.com/sonnymay/todomon.git` on `main`.
 
 ### 0b. UI review — 9 ranked issues all fixed ✅
 A full UI review flagged 9 issues (3 critical). All resolved and verified in the
@@ -54,14 +56,15 @@ The source `.mp4`s have a **flat baked-in background** and were NOT uniform:
   **BLACK letterbox bars** top+bottom (cropdetect → `crop=720:720:0:280`).
 
 Fix: `frontend/scripts/encode-creatures.sh` crops the bars (portrait clips only)
-then color-keys WHITE → transparency, outputting VP9 `.webm` with alpha beside the
-originals. The `.mp4`s are **kept as a `<source>` fallback**. `CreatureScene.tsx`
-now renders `<video><source …webm><source …mp4></video>` with **no mix-blend-mode**.
+then flood-fill keys WHITE background → transparency, outputting VP9 `.webm` with
+alpha beside the originals. The `.mp4`s are **kept as a `<source>` fallback**.
+`CreatureScene.tsx` now renders `<video><source …webm><source …mp4></video>` with
+**no mix-blend-mode**.
 Re-run after changing assets: `bash scripts/encode-creatures.sh` (needs `ffmpeg`
 with `libvpx-vp9`; verified present, v8.0.1).
-- Tuning lives in the script: `colorkey=0xFFFFFF:0.14:0`. `blend=0` is intentional:
-  it keeps the creature opaque instead of semi-transparent. If the dragon's own
-  near-white highlights get nicked (halos/holes), LOWER the similarity (0.14).
+- Tuning lives in the script: `THRESHOLD=235`. Lower it only if a source clip has
+  off-white background left around the edge; raise it if edge-connected highlights
+  get cut too aggressively.
 - `lib/stages.ts` now exports `creatureSources(stage) → {webm, mp4}` (replaced the
   old single-URL `creatureAsset()`); the `baby→hatchling` fallback still applies.
 
