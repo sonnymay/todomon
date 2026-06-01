@@ -6,13 +6,20 @@ interface Props {
   tasks: Task[]
   onAdd: (title: string, xpReward: number) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
+  onUncomplete: (taskId: string) => Promise<void>
   onDelete: (taskId: string) => Promise<void>
 }
 
 // Every task is worth the same (kept simple — no difficulty picker shown to the user).
 const TASK_XP = DIFFICULTY_XP.SMALL
 
-export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) {
+export default function TaskList({
+  tasks,
+  onAdd,
+  onComplete,
+  onUncomplete,
+  onDelete,
+}: Props) {
   const [title, setTitle] = useState('')
   const [adding, setAdding] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -147,9 +154,21 @@ export default function TaskList({ tasks, onAdd, onComplete, onDelete }: Props) 
               </div>
 
               {t.is_done ? (
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-500 text-white">
-                  ✓
-                </span>
+                <button
+                  aria-label="Undo (mark not done)"
+                  disabled={busyId === t.id}
+                  onClick={async () => {
+                    setBusyId(t.id)
+                    try {
+                      await onUncomplete(t.id)
+                    } finally {
+                      setBusyId(null)
+                    }
+                  }}
+                  className="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:bg-slate-200 active:scale-95 disabled:opacity-50"
+                >
+                  ↩︎ Undo
+                </button>
               ) : (
                 <div className="flex items-center gap-1">
                   <button

@@ -3,7 +3,6 @@ import TopBar from './TopBar'
 import CreatureScene from './CreatureScene'
 import StatsPanel from './StatsPanel'
 import TaskList from './TaskList'
-import BottomNav from './BottomNav'
 
 interface Props {
   creature: Creature | null
@@ -20,6 +19,7 @@ interface Props {
   onRename: (name: string) => void
   onAdd: (title: string, xpReward: number) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
+  onUncomplete: (taskId: string) => Promise<void>
   onDelete: (taskId: string) => Promise<void>
   onDevEvolve?: () => void
 }
@@ -39,6 +39,7 @@ export default function Home({
   onRename,
   onAdd,
   onComplete,
+  onUncomplete,
   onDelete,
   onDevEvolve,
 }: Props) {
@@ -52,6 +53,7 @@ export default function Home({
           justLeveledTo={leveledTo}
           celebration={celebrate}
           greeting={greeting}
+          onToggleNight={onToggleNight}
           topBar={
             <TopBar
               petName={creature.name}
@@ -79,8 +81,7 @@ export default function Home({
         </div>
       )}
 
-      {/* pb leaves room so the bottom Sleep bar never covers the last task */}
-      <div className="flex-1 pt-5 pb-24">
+      <div className="flex-1 pt-5 pb-8">
         {error && (
           <p className="mx-3 mb-3 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700">
             {error}
@@ -90,11 +91,10 @@ export default function Home({
           tasks={tasks}
           onAdd={onAdd}
           onComplete={onComplete}
+          onUncomplete={onUncomplete}
           onDelete={onDelete}
         />
       </div>
-
-      <BottomNav night={night} onToggleNight={onToggleNight} />
     </div>
   )
 }

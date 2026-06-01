@@ -57,7 +57,7 @@ export default function App() {
   const [night, setNight] = useState(DEV_NO_AUTH ? false : isNight())
 
   // Hunger is real: decays over time, +1 per task (see useHunger).
-  const { hunger, onTaskCompleted } = useHunger()
+  const { hunger, onTaskCompleted, onTaskUndone } = useHunger()
 
   useEffect(() => {
     if (DEV_NO_AUTH) {
@@ -180,6 +180,30 @@ export default function App() {
     applyLevelUp(prevStage, updated.stage)
   }
 
+  // Undo an accidental completion: reopen the task and reverse the XP + hunger it gave.
+  async function handleUncomplete(taskId: string) {
+    if (DEV_NO_AUTH) {
+      const task = tasks.find((t) => t.id === taskId)
+      if (!task || !task.is_done || !creature) return
+      const newXp = Math.max(0, creature.xp - task.xp_reward)
+      setCreature({ ...creature, xp: newXp, stage: stageForXp(newXp) })
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? { ...t, is_done: false, completed_at: null } : t,
+        ),
+      )
+      onTaskUndone()
+      return
+    }
+    // TODO(real mode): needs a Supabase "uncomplete" RPC to reverse XP server-side.
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, is_done: false, completed_at: null } : t,
+      ),
+    )
+    onTaskUndone()
+  }
+
   async function handleDelete(taskId: string) {
     if (DEV_NO_AUTH) {
       setTasks((prev) => prev.filter((t) => t.id !== taskId))
@@ -238,6 +262,7 @@ export default function App() {
         }}
         onAdd={handleAdd}
         onComplete={handleComplete}
+        onUncomplete={handleUncomplete}
         onDelete={handleDelete}
         onDevEvolve={
           DEV_NO_AUTH && import.meta.env.DEV ? handleDevEvolve : undefined

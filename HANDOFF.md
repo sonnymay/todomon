@@ -9,6 +9,20 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Undo completion + Sleep button relocated ✅
+- **Undo an accidental "done"**: completed tasks now show an "↩︎ Undo" button (replaces
+  the static ✓). `App.handleUncomplete` reopens the task (`is_done:false`,
+  `completed_at:null`), subtracts its XP (recomputes stage via `stageForXp`), and reverses
+  the +1 hunger via a new `onTaskUndone` in `useHunger`. Threaded App→Home→TaskList.
+  Verified: count 2→1, XP bar 4%→0%, task returns to the open queue. (Real-mode needs an
+  "uncomplete" RPC — TODO noted; dev path is full.)
+- **Sleep button moved**: removed the bottom Sleep bar (`BottomNav.tsx` deleted). The
+  Sleep/Wake toggle is now a round 🌙/☀️ button in the **upper-right of the scene, below
+  the ☰ menu** (`CreatureScene` gained an `onToggleNight` prop; `right-3 top-16 z-30`).
+  Home's task area lost the bottom padding it no longer needs (`pb-24`→`pb-8`).
+- Verified live: undo reverses everything; sleep toggle from the new spot still shows the
+  sleeping image + dim; `npm run build` green; console clean.
+
 ### (2026-06-01) New tasks queue to the bottom ✅
 Flipped the `TaskList` open-task ordering from newest-first to **oldest-first**
 (`created_at` ascending) so newly added tasks append to the **bottom** of the open list

@@ -14,6 +14,7 @@ interface Props {
   celebration: string | null
   greeting: string | null
   topBar: ReactNode
+  onToggleNight: () => void
 }
 
 // Stage media are full-scene assets. Idle uses looping MP4; sleep uses a static
@@ -30,6 +31,7 @@ export default function CreatureScene({
   celebration,
   greeting,
   topBar,
+  onToggleNight,
 }: Props) {
   const sceneVideo = creatureSceneVideo(creature.stage)
   const sleepImage = creatureSleepImage(creature.stage)
@@ -172,6 +174,18 @@ export default function CreatureScene({
       <div style={{ position: 'absolute', insetInline: 0, top: 0, zIndex: 20 }}>
         {topBar}
       </div>
+
+      {/* sleep / wake — upper-right, below the menu button */}
+      <button
+        onClick={onToggleNight}
+        aria-label={night ? 'Wake (switch to day)' : 'Sleep (switch to night)'}
+        className="absolute right-3 top-16 z-30 flex h-12 w-12 flex-col items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg ring-2 ring-white transition hover:bg-indigo-700 active:scale-95"
+      >
+        <span className="text-lg leading-none">{night ? '☀️' : '🌙'}</span>
+        <span className="text-[8px] font-bold leading-none">
+          {night ? 'WAKE' : 'SLEEP'}
+        </span>
+      </button>
 
       {/* welcome-back greeting — shown once when returning on a new day */}
       {greeting && !celebration && (

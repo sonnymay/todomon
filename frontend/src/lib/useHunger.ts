@@ -58,6 +58,7 @@ function applyDecay(state: HungerState, now: number): HungerState {
 export interface UseHunger {
   hunger: number
   onTaskCompleted: () => void
+  onTaskUndone: () => void
 }
 
 export function useHunger(): UseHunger {
@@ -89,5 +90,15 @@ export function useHunger(): UseHunger {
     })
   }, [])
 
-  return { hunger: state.value, onTaskCompleted }
+  // Reverse of onTaskCompleted, for undoing an accidental completion.
+  const onTaskUndone = useCallback(() => {
+    setState((prev) => {
+      const decayed = applyDecay(prev, Date.now())
+      const next = { value: clamp(decayed.value - 1), updatedAt: decayed.updatedAt }
+      writeState(next)
+      return next
+    })
+  }, [])
+
+  return { hunger: state.value, onTaskCompleted, onTaskUndone }
 }
