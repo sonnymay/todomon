@@ -87,6 +87,8 @@ const HUNGRY_VIDEO_BY_STAGE: Partial<Record<Stage, string>> = {
   baby: 'sun_dragon_baby_hungry.mp4',
   rookie: 'sun_dragon_rookie_hungry.mp4',
   champion: 'sun_dragon_champion_hungry.mp4',
+  ultimate: 'sun_dragon_ultimate_hungry.mp4',
+  mega: 'sun_dragon_mega_hungry.mp4',
 }
 
 export function creatureHungryVideo(stage: Stage): string | null {

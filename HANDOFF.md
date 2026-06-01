@@ -9,6 +9,17 @@ _Last updated: 2026-06-01_
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-01) Ultimate + Mega hungry videos added ✅
+Moved the final hungry-state MP4s from `~/Downloads/` into
+`frontend/public/assets/creatures/`:
+- `sun_dragon_ultimate_hungry.mp4`
+- `sun_dragon_mega_hungry.mp4`
+
+Updated `frontend/src/lib/stages.ts` so `HUNGRY_VIDEO_BY_STAGE` now covers all 7 stages.
+Verification:
+- `npm run build` passes.
+- Vite serves both new files at `/assets/creatures/...` with HTTP 200.
+
 ### (2026-06-01) Undo completion + Sleep button relocated ✅
 - **Undo an accidental "done"**: completed tasks now show an "↩︎ Undo" button (replaces
   the static ✓). `App.handleUncomplete` reopens the task (`is_done:false`,
