@@ -24,7 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 DIR="$(cd "$SCRIPT_DIR/.." && pwd)/public/assets/creatures"
 cd "$DIR"
 
-THRESHOLD="235"
+THRESHOLD="195"
 KEY_SCRIPT="$SCRIPT_DIR/key-creature-background.mjs"
 
 # stage|extra_vf|size   (crop for the letterboxed portrait clips; empty for squares)

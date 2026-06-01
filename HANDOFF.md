@@ -18,6 +18,8 @@ Fix: `frontend/scripts/encode-creatures.sh` now pipes raw RGBA frames through
 `frontend/scripts/key-creature-background.mjs`, which flood-fills only white pixels
 connected to the frame border. Internal white highlights remain fully opaque. All
 existing `.webm` creature clips were re-encoded from source `.mp4`s with this method.
+Follow-up cleanup: `THRESHOLD` was lowered from `235` to `195` to remove the remaining
+off-white/blue-white compression fringe around the creature edges.
 
 Verification:
 - Chrome reload at `http://localhost:5173/`: `champion.webm` playing, `opacity: 1`,
@@ -62,8 +64,8 @@ alpha beside the originals. The `.mp4`s are **kept as a `<source>` fallback**.
 **no mix-blend-mode**.
 Re-run after changing assets: `bash scripts/encode-creatures.sh` (needs `ffmpeg`
 with `libvpx-vp9`; verified present, v8.0.1).
-- Tuning lives in the script: `THRESHOLD=235`. Lower it only if a source clip has
-  off-white background left around the edge; raise it if edge-connected highlights
+- Tuning lives in the script: `THRESHOLD=195`. Lower it only if a source clip still
+  has off-white background left around the edge; raise it if edge-connected highlights
   get cut too aggressively.
 - `lib/stages.ts` now exports `creatureSources(stage) → {webm, mp4}` (replaced the
   old single-URL `creatureAsset()`); the `baby→hatchling` fallback still applies.
@@ -201,7 +203,7 @@ src/
     TaskList.tsx       # add form + "done today" counter + task feed
     BottomNav.tsx      # Home/Inventory/Quests/Stats tabs + floating SLEEP button (above nav)
 scripts/
-  encode-creatures.sh  # mp4 → transparent webm (crop + colorkey white); see 0b
+  encode-creatures.sh  # mp4 → transparent webm (crop + flood-fill key); see 0c
 public/assets/creatures # egg/hatchling/rookie/champion/ultimate/mega .mp4 + .webm (baby missing)
 ```
 
