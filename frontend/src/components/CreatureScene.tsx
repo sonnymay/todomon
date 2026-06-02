@@ -5,6 +5,8 @@ import {
   creatureSceneVideo,
   creatureSleepImage,
 } from '../lib/stages'
+import * as sfx from '../lib/sfx'
+import * as haptics from '../lib/haptics'
 
 interface Props {
   creature: Creature
@@ -64,6 +66,8 @@ export default function CreatureScene({
     setTimeout(() => setHearts((h) => h.filter((x) => x !== id)), 900)
     setBounce(true)
     setTimeout(() => setBounce(false), 320)
+    sfx.playTap()
+    haptics.tapLight()
   }
 
   return (
@@ -86,44 +90,52 @@ export default function CreatureScene({
           transition: 'transform 300ms ease-out',
         }}
       >
-        <video
-          key={creature.stage}
-          autoPlay
-          loop
-          muted
-          playsInline
-          style={{
-            position: 'absolute',
-            inset: 0,
-            height: '100%',
-            width: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-          }}
+        {/* Inner wrapper carries the hungry pulse so it composes with the outer
+            bounce transform (inline transform on the parent would override an
+            animation set on the same element). */}
+        <div
+          className={showHungry ? 'hungry-pulse' : undefined}
+          style={{ position: 'absolute', inset: 0 }}
         >
-          <source src={sceneVideo} type="video/mp4" />
-        </video>
-
-        {showHungry && (
           <video
-            key={`hungry-${creature.stage}`}
+            key={creature.stage}
             autoPlay
             loop
             muted
             playsInline
-            onError={() => setHungryVideoFailed(true)}
             style={{
               position: 'absolute',
               inset: 0,
               height: '100%',
               width: '100%',
               objectFit: 'cover',
-              zIndex: 1,
+              zIndex: 0,
             }}
           >
-            <source src={hungryVideo} type="video/mp4" />
+            <source src={sceneVideo} type="video/mp4" />
           </video>
-        )}
+
+          {showHungry && (
+            <video
+              key={`hungry-${creature.stage}`}
+              autoPlay
+              loop
+              muted
+              playsInline
+              onError={() => setHungryVideoFailed(true)}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                height: '100%',
+                width: '100%',
+                objectFit: 'cover',
+                zIndex: 1,
+              }}
+            >
+              <source src={hungryVideo} type="video/mp4" />
+            </video>
+          )}
+        </div>
       </div>
 
       {/* tap layer — pet the dragon (below the top bar, above the video) */}

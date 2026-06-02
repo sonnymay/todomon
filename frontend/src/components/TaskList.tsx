@@ -4,7 +4,8 @@ import { DIFFICULTY_XP } from '../lib/stages'
 
 interface Props {
   tasks: Task[]
-  onAdd: (title: string, xpReward: number) => Promise<void>
+  streak: number
+  onAdd: (title: string, xpReward: number, notes?: string) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
   onUncomplete: (taskId: string) => Promise<void>
   onDelete: (taskId: string) => Promise<void>
@@ -15,15 +16,19 @@ const TASK_XP = DIFFICULTY_XP.SMALL
 
 export default function TaskList({
   tasks,
+  streak,
   onAdd,
   onComplete,
   onUncomplete,
   onDelete,
 }: Props) {
   const [title, setTitle] = useState('')
+  const [notes, setNotes] = useState('')
   const [adding, setAdding] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [pop, setPop] = useState(false)
+  // Task id currently playing its completion flourish (badge pop + "+XP" float).
+  const [celebratingId, setCelebratingId] = useState<string | null>(null)
 
   const completedCount = tasks.filter((t) => t.is_done).length
 
@@ -54,8 +59,9 @@ export default function TaskList({
     if (!t) return
     setAdding(true)
     try {
-      await onAdd(t, TASK_XP)
+      await onAdd(t, TASK_XP, notes.trim() || undefined)
       setTitle('')
+      setNotes('')
     } finally {
       setAdding(false)
     }
@@ -67,6 +73,21 @@ export default function TaskList({
     (a, b) =>
       Number(a.is_done) - Number(b.is_done) ||
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  )
+
+  // Permanent per-task number: ranked by creation order (not list position), so a
+  // task keeps its own number when others are completed — completing #1 never lets
+  // another task take "1". New tasks always get the next-highest number.
+  const numberById = new Map(
+    [...tasks]
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+          // Numeric-aware tiebreak so dev ids (local-8 vs local-10) and any
+          // same-millisecond creations rank by true creation order, not lexically.
+          a.id.localeCompare(b.id, undefined, { numeric: true }),
+      )
+      .map((t, i) => [t.id, i + 1] as const),
   )
 
   return (
@@ -94,23 +115,43 @@ export default function TaskList({
           <br />
           today ✅
         </span>
+        {streak > 0 && (
+          <span className="ml-auto flex items-center gap-1.5 rounded-2xl bg-orange-100 px-3 py-2 text-orange-600">
+            <span className="text-2xl leading-none">🔥</span>
+            <span className="text-sm font-black leading-tight">
+              {streak}
+              <br />
+              <span className="text-[11px] font-extrabold">
+                day{streak === 1 ? '' : 's'}
+              </span>
+            </span>
+          </span>
+        )}
       </div>
 
-      <form onSubmit={submit} className="mt-3 flex gap-2">
+      <form onSubmit={submit} className="mt-3 space-y-2">
+        <div className="flex gap-2">
+          <input
+            value={title}
+            autoFocus
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Add a task…"
+            className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
+          />
+          <button
+            type="submit"
+            disabled={adding}
+            className="shrink-0 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
+          >
+            Add ✨
+          </button>
+        </div>
         <input
-          value={title}
-          autoFocus
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Add a task…"
-          className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Add a note… (optional)"
+          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
         />
-        <button
-          type="submit"
-          disabled={adding}
-          className="shrink-0 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
-        >
-          Add ✨
-        </button>
       </form>
 
       <ul className="mt-3 space-y-2.5">
@@ -119,20 +160,27 @@ export default function TaskList({
             No tasks yet — add one to feed your dragon! 🐣
           </li>
         )}
-        {ordered.map((t, i) => {
+        {ordered.map((t) => {
           return (
             <li
               key={t.id}
-              className={`group flex items-center gap-3 rounded-3xl bg-white p-3.5 shadow-sm transition ${
+              className={`group row-in flex items-center gap-3 rounded-3xl bg-white p-3.5 shadow-sm transition ${
                 t.is_done ? 'opacity-60' : ''
               }`}
             >
-              <div
-                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-xl font-black text-white ${
-                  t.is_done ? 'bg-green-500' : 'bg-amber-400'
-                }`}
-              >
-                {t.is_done ? '✓' : i + 1}
+              <div className="relative shrink-0">
+                <div
+                  className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl font-black text-white ${
+                    t.is_done ? 'bg-green-500' : 'bg-amber-400'
+                  } ${celebratingId === t.id ? 'pop-check' : ''}`}
+                >
+                  {t.seq ?? numberById.get(t.id)}
+                </div>
+                {celebratingId === t.id && (
+                  <span className="xp-float pointer-events-none absolute -top-1 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm font-black text-amber-500">
+                    +{t.xp_reward} ⭐
+                  </span>
+                )}
               </div>
 
               <div className="min-w-0 flex-1">
@@ -176,6 +224,8 @@ export default function TaskList({
                     disabled={busyId === t.id}
                     onClick={async () => {
                       setBusyId(t.id)
+                      setCelebratingId(t.id)
+                      setTimeout(() => setCelebratingId(null), 900)
                       try {
                         await onComplete(t.id)
                       } finally {

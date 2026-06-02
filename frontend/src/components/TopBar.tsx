@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { isSoundOn, setSoundOn } from '../lib/sfx'
 
 interface Props {
   petName: string
@@ -10,8 +11,11 @@ const MAX_NAME = 16
 
 export default function TopBar({ petName, onMenu, onRename }: Props) {
   const [editing, setEditing] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [soundOn, setSoundOnState] = useState(isSoundOn)
   const [draft, setDraft] = useState(petName)
   const inputRef = useRef<HTMLInputElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (editing) {
@@ -20,6 +24,18 @@ export default function TopBar({ petName, onMenu, onRename }: Props) {
       inputRef.current?.select()
     }
   }, [editing, petName])
+
+  // Close the menu when clicking anywhere outside it.
+  useEffect(() => {
+    if (!menuOpen) return
+    function onDocClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [menuOpen])
 
   function save(e: FormEvent) {
     e.preventDefault()
@@ -70,13 +86,49 @@ export default function TopBar({ petName, onMenu, onRename }: Props) {
       )}
 
       {/* menu */}
-      <button
-        aria-label="Menu"
-        onClick={onMenu}
-        className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/90 text-xl text-slate-600 shadow hover:bg-white"
-      >
-        ☰
-      </button>
+      <div ref={menuRef} className="relative">
+        <button
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+          className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/90 text-xl text-slate-600 shadow hover:bg-white"
+        >
+          ☰
+        </button>
+
+        {menuOpen && (
+          <div className="absolute right-0 top-12 z-40 w-44 overflow-hidden rounded-2xl bg-white py-1 shadow-xl ring-1 ring-black/5">
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                setEditing(true)
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              ✏️ Rename dragon
+            </button>
+            <button
+              onClick={() => {
+                const next = !soundOn
+                setSoundOn(next)
+                setSoundOnState(next)
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              {soundOn ? '🔊 Sound: On' : '🔇 Sound: Off'}
+            </button>
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                onMenu()
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              🚪 Sign out
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

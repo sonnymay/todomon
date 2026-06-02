@@ -49,6 +49,7 @@ export function seedCreature(): Creature {
 }
 
 export function seedTasks(): Task[] {
+  let seq = 0
   const t = (
     title: string,
     notes: string,
@@ -63,6 +64,7 @@ export function seedTasks(): Task[] {
     is_done,
     created_at: now(),
     completed_at: is_done ? now() : null,
+    seq: ++seq,
   })
 
   // Every task is worth the same (kept simple — no difficulty).
@@ -75,15 +77,27 @@ export function seedTasks(): Task[] {
   ]
 }
 
-export function localTask(title: string, xpReward: number): Task {
+export function localTask(
+  title: string,
+  xpReward: number,
+  notes?: string,
+  seq?: number,
+): Task {
   return {
     id: localId(),
     user_id: DEV_USER,
     title,
-    notes: null,
+    notes: notes?.trim() ? notes.trim() : null,
     xp_reward: xpReward,
     is_done: false,
     created_at: new Date().toISOString(),
     completed_at: null,
+    seq,
   }
+}
+
+// Next permanent task number: one past the highest seq currently in use. Computed from
+// the live list (not a module counter) so it survives StrictMode double-invokes.
+export function nextTaskSeq(tasks: Task[]): number {
+  return tasks.reduce((max, t) => Math.max(max, t.seq ?? 0), 0) + 1
 }

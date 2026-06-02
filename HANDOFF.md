@@ -3,11 +3,132 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-01_
+_Last updated: 2026-06-01 (real-mode persistence built; dev mode still default)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-01) Real-mode persistence built (dev mode still default) ✅
+Implemented full Supabase-backed persistence so state survives reinstall when
+`DEV_NO_AUTH=false`. **`DEV_NO_AUTH` stays `true`** (per user) — the new code is dormant until
+flipped, so the running app is byte-for-byte the same experience (verified: dev complete →
+streak/hunger/confetti all work, 0 runtime errors).
+- **Migrations applied** to Supabase project `tlswbznepnmtvrlmegzd` (name "dividend", the one in
+  `frontend/.env`):
+  1. `todomon_fix_stage_curve` — rewrote `todomon_stage_for_xp` to the frontend's ramping
+     thresholds (0/50/1800/5850/12150/20700/54500). The old 0/50/120/250/450/700/1000 would
+     have mis-evolved creatures in real mode. **§8 item resolved.** Verified at boundaries
+     (12149→rookie, 12150→champion, 54500→mega).
+  2. `todomon_add_hunger_streak_columns` — `todomon_creatures.hunger int default 100` +
+     `hunger_updated_at timestamptz default now()`; `todomon_profiles.streak_count int
+     default 0` + `last_active_date date`. (Additive/defaulted — safe.)
+  3. `todomon_complete_task_hunger_streak` — the complete RPC now also applies hunger decay
+     (−1/30 min) then +1, and advances the daily streak (same-day no-op / yesterday +1 /
+     older reset to 1). Return type unchanged.
+  4. `todomon_uncomplete_task(uuid)` — new SECURITY DEFINER RPC: reopen task, subtract XP
+     (clamp ≥0), recompute stage, hunger −1. **§8 uncomplete-RPC item resolved.**
+- **API** (`lib/api.ts`): added `uncompleteTask`, `updateCreatureName`, `fetchProfile`.
+- **Hooks** seed from server in real mode (optional arg; dev path untouched):
+  `useHunger(serverSeed?)` re-seeds from `creature.hunger`/`hunger_updated_at`;
+  `useStreak(serverSeed?)` re-seeds from the profile (date format normalized). localStorage
+  writes are gated to dev only.
+- **App** (`App.tsx`): added `profile` state; `loadData` also `fetchProfile()`; real branches
+  wired — `handleUncomplete` calls the RPC (TODO removed), `handleRename` persists via
+  `updateCreatureName` (TODO removed), `handleComplete` refreshes the profile for the
+  server streak. `types.ts`: `Creature.hunger?/hunger_updated_at?` + new `Profile`.
+- `npm test` 18 pass; `npm run build` green.
+- **NOT done (needs you):** to actually go live, set `DEV_NO_AUTH=false` AND turn off
+  "Confirm email" in Supabase → Auth → Providers → Email (or wire confirmation), then sign up.
+  Full real-mode E2E couldn't be auto-tested here (needs a real authenticated session).
+
+### (2026-06-01) Delight pass: juicy completion (sound + haptics + confetti) ✅
+Made the core loop feel great. All frontend, reduced-motion-aware, mutable.
+- **Sound (zero assets)**: `lib/sfx.ts` — Web Audio API synth, lazy `AudioContext` on first
+  gesture. `playComplete()` (two-note ding), `playLevelUp()` (rising arpeggio), `playTap()`.
+  Gated by `localStorage['todomon_sound_v1']` (default on) via `isSoundOn`/`setSoundOn`.
+- **Haptics**: installed `@capacitor/haptics`; `lib/haptics.ts` wraps `tapLight()` /
+  `success()` in try/catch (no-op on web).
+- **Confetti**: installed `canvas-confetti` (+ types); `lib/confetti.ts` — `celebrate()` small
+  pop, `evolveBurst()` bigger. Both skip when `prefers-reduced-motion`.
+- **Wiring** (`App.tsx`): `cheer()` now also fires complete chime + light haptic + confetti;
+  `applyLevelUp` (on real stage change) fires the level-up fanfare + success haptic + big burst.
+- **Micro-anims** (`TaskList.tsx` + `index.css`): completing a task pops the badge (`pop-check`)
+  and floats "+{xp} ⭐" (`xp-float`); new rows enter with `row-in`; a hungry pet gently pulses
+  (`hungry-pulse` on a new inner wrapper in `CreatureScene`, so it composes with the tap bounce).
+  Pet-tap now plays `playTap()` + light haptic.
+- **Controls/a11y** (`TopBar.tsx`): ☰ menu gained a 🔊/🔇 **Sound: On/Off** toggle. `index.css`
+  has a `prefers-reduced-motion` block neutralizing the non-essential flourishes.
+- **iOS**: `cap sync ios` (with `LANG=en_US.UTF-8` to dodge a CocoaPods ASCII-8BIT crash) copied
+  web assets → **all 7 hungry videos now in `ios/App/App/public`** + the new bundle. `pod install`
+  still blocked by the Xcode-not-installed issue (Command Line Tools only) — haptics native pod
+  needs full Xcode to finish (see §"Capacitor iOS shell" below).
+- Verified live: completing a task → confetti canvas + "+20 ⭐" float + badge pop, console clean;
+  Dev: Evolve → bigger confetti + "Evolved to …" banner; 🔇 toggle persists and silences sound.
+  `npm test` 18 pass; `npm run build` green (95 modules).
+
+### (2026-06-01) Robustness + streak + onboarding + evolution preview ✅
+Batch of improvements (all frontend, dev mode):
+- **Error boundary**: new `components/ErrorBoundary.tsx` (class component) wraps `<App>` in
+  `main.tsx`. A render-time crash now shows a friendly "Sunny tripped — Reload" card instead
+  of blanking to a white screen.
+- **Delete-proof task numbers**: added optional `seq?: number` to `Task` (`types.ts`).
+  `seedTasks` assigns 1..5; `handleAdd` (dev) assigns `nextTaskSeq(prev)` = max seq + 1
+  (computed from the live list, StrictMode-safe). Badge renders `t.seq ?? <creation-rank>`
+  (`TaskList.tsx`), so numbers now survive **deletion** too, not just completion. Real
+  (Supabase) rows have no `seq` yet → graceful fallback to the created_at rank from before.
+- **Daily streak**: new `lib/useStreak.ts` (pure `currentStreak`/`registerCompletion` +
+  hook, persisted to `localStorage['todomon_streak_v1']`). `App.handleComplete` calls
+  `registerStreak()` alongside `onTaskCompleted()`. A 🔥 chip renders in the "done today"
+  block (`TaskList`) when streak > 0. Streak stays alive through "yesterday", lapses after a
+  2-day gap.
+- **Onboarding**: new `components/Onboarding.tsx` — 3-step first-run overlay (self-contained,
+  gated by `localStorage['todomon_onboarded_v1']`), mounted unconditionally in `App`.
+- **Evolution preview**: `StatsPanel` replaced the bare "Next: Ultimate" line with a card —
+  next-stage sleeping-PNG thumbnail (`creatureSleepImage(evo.stage)`) + label + an
+  "N lvls to go" badge (`STAGE_LEVEL[evo.stage] - levelFromXp(xp)`).
+- **Tests**: added Vitest (`npm test` → `vitest run`). `lib/stages.test.ts` (xp/level
+  inverse, stage mapping, levelInfo, nextEvolution) + `lib/useStreak.test.ts` (streak
+  continue/reset/lapse). **18 tests pass.** `npm run build` green (86 modules).
+- Verified live: onboarding steps + dismiss persist; completing a task → 🔥 1 day chip;
+  evolution card shows "Ultimate / 10 lvls to go"; console clean.
+
+### (2026-06-01) Review fixes: working ☰ menu + add-task notes field ✅
+Acted on the two genuinely-valid items from an external app review (the rest were dev-build
+artifacts or hallucinations: no Web3/wagmi exists, the dev buttons are already prod-gated via
+`import.meta.env.DEV`, the "empty Food bar" was the reviewer pressing Starve, and a Supabase
+backend for cross-device sync already exists behind `DEV_NO_AUTH`).
+- **☰ menu now opens a dropdown**: `TopBar` previously wired `onMenu` straight to sign-out,
+  which no-ops under `DEV_NO_AUTH`, so the button did nothing. It now toggles a popover
+  (`menuOpen` + outside-click `mousedown` listener via `menuRef`) with two real items —
+  **✏️ Rename dragon** (reuses the existing `setEditing(true)` rename flow) and **🚪 Sign out**
+  (`onMenu`).
+- **Add-task notes/subtitle**: `addTask` (`api.ts`) already accepted `notes`; threaded it
+  through `localTask` (`localGame.ts`), `handleAdd` (`App.tsx`), and the `onAdd` prop type in
+  `Home`/`TaskList`. `TaskList` gained a `notes` state + an optional "Add a note… (optional)"
+  input under the title row, cleared on submit.
+- Verified live: ☰ opens/closes (outside-click + item-click); Rename focuses the name field;
+  adding "Walk the dog" + a note created task **#6** with its subtitle, queued at the bottom.
+  `npm run build` green; no new console errors.
+
+### (2026-06-01) Dev food test buttons + permanent task numbers ✅
+- **Dev food test buttons**: added `devAdjustHunger(delta)` to `useHunger` (applies decay
+  then clamps, mirroring `onTaskCompleted`). `App` wires two dev-only handlers (guarded by
+  `DEV_NO_AUTH && import.meta.env.DEV`, same as Dev: Evolve): `onDevFeed` → `+20`,
+  `onDevStarve` → `-20`. `Home` renders `😋 Starve −20` and `🍖 Feed +20` pills in the same
+  dev-button row. Lets you drive hunger below the `HUNGRY_THRESHOLD` (20) on demand to test
+  the hungry-state videos. Verified live: Starve → hunger 0 → the stage's `*_hungry.mp4`
+  overlay renders (confirmed champion + the new **mega_hungry** with no media error); Feed
+  → hunger 20 → overlay gone.
+- **Permanent per-task numbers**: badges no longer use list position (`i + 1`), which made
+  open tasks renumber when one completed. `TaskList` now builds `numberById` ranking **all**
+  tasks by `created_at` ascending, tie-broken by `id.localeCompare(b.id, { numeric: true })`
+  (the numeric flag matters in dev mode where seeded tasks share a `created_at` ms and ids
+  are `local-N`). Each task keeps its own number for life — completing #2 keeps it "2" and
+  open tasks stay 3,4,5 (no shift to fill 1/2). Done tasks now show their number (on green)
+  instead of `✓`. Verified live + `npm run build` green.
+- Note: a *deleted* task still causes a one-time renumber of later tasks (numbers are
+  derived, not stored). Delete-proof numbering would need a stored `seq` column — deferred.
 
 ### (2026-06-01) Ultimate + Mega hungry videos added ✅
 Moved the final hungry-state MP4s from `~/Downloads/` into

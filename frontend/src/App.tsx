@@ -4,19 +4,23 @@ import { supabase } from './lib/supabaseClient'
 import {
   addTask as apiAddTask,
   completeTask as apiCompleteTask,
+  uncompleteTask as apiUncompleteTask,
   deleteTask as apiDeleteTask,
+  updateCreatureName as apiUpdateCreatureName,
   fetchCreature,
+  fetchProfile,
   fetchTasks,
 } from './lib/api'
 import {
   DEV_NO_AUTH,
   getStoredPetName,
   localTask,
+  nextTaskSeq,
   seedCreature,
   seedTasks,
   setStoredPetName,
 } from './lib/localGame'
-import type { Creature, Task } from './types'
+import type { Creature, Profile, Task } from './types'
 import {
   STAGE_LABEL,
   STAGE_ORDER,
@@ -24,8 +28,13 @@ import {
   stageForXp,
 } from './lib/stages'
 import { useHunger } from './lib/useHunger'
+import { useStreak } from './lib/useStreak'
+import * as sfx from './lib/sfx'
+import * as haptics from './lib/haptics'
+import { celebrate as confettiCelebrate, evolveBurst } from './lib/confetti'
 import Auth from './components/Auth'
 import Home from './components/Home'
+import Onboarding from './components/Onboarding'
 
 const ENCOURAGEMENTS = [
   "You're building amazing habits!",
@@ -44,6 +53,7 @@ export default function App() {
   const [authReady, setAuthReady] = useState(false)
 
   const [creature, setCreature] = useState<Creature | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -56,8 +66,24 @@ export default function App() {
   // follows local time.
   const [night, setNight] = useState(DEV_NO_AUTH ? false : isNight())
 
+  // In real mode, hunger/streak are server-authoritative (seed from the creature/profile so
+  // they survive reinstall). In dev mode the seeds are undefined → localStorage-backed.
+  const hungerSeed =
+    !DEV_NO_AUTH && creature?.hunger != null && creature.hunger_updated_at
+      ? {
+          value: creature.hunger,
+          updatedAt: new Date(creature.hunger_updated_at).getTime(),
+        }
+      : undefined
+  const streakSeed =
+    !DEV_NO_AUTH && profile
+      ? { count: profile.streak_count, lastDate: profile.last_active_date }
+      : undefined
+
   // Hunger is real: decays over time, +1 per task (see useHunger).
-  const { hunger, onTaskCompleted, onTaskUndone } = useHunger()
+  const { hunger, onTaskCompleted, onTaskUndone, devAdjustHunger } = useHunger(hungerSeed)
+  // Daily completion streak (persisted; see useStreak).
+  const { streak, registerCompletion: registerStreak } = useStreak(streakSeed)
 
   useEffect(() => {
     if (DEV_NO_AUTH) {
@@ -80,9 +106,14 @@ export default function App() {
     setLoading(true)
     setError(null)
     try {
-      const [c, t] = await Promise.all([fetchCreature(), fetchTasks()])
+      const [c, t, p] = await Promise.all([
+        fetchCreature(),
+        fetchTasks(),
+        fetchProfile(),
+      ])
       setCreature(c)
       setTasks(t)
+      setProfile(p)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load')
     } finally {
@@ -97,6 +128,7 @@ export default function App() {
     } else {
       setCreature(null)
       setTasks([])
+      setProfile(null)
     }
   }, [session, loadData])
 
@@ -120,27 +152,43 @@ export default function App() {
   function handleRename(name: string) {
     setStoredPetName(name)
     setCreature((c) => (c ? { ...c, name } : c))
-    // TODO(real mode): persist the name to Supabase when DEV_NO_AUTH is off.
+    // Real mode: persist to Supabase (fire-and-forget; the optimistic update already showed it).
+    if (!DEV_NO_AUTH) {
+      void apiUpdateCreatureName(name).catch((err) =>
+        setError(err instanceof Error ? err.message : 'Failed to save name'),
+      )
+    }
   }
 
   function applyLevelUp(prevStage: string | undefined, nextStage: string) {
     if (prevStage && nextStage !== prevStage) {
       setLeveledTo(STAGE_LABEL[nextStage as keyof typeof STAGE_LABEL])
       setTimeout(() => setLeveledTo(null), 3500)
+      // Evolution fanfare: louder sound, success haptic, big confetti.
+      sfx.playLevelUp()
+      haptics.success()
+      evolveBurst()
     }
   }
 
   function cheer() {
     setCelebrate(ENCOURAGEMENTS[Math.floor(Date.now() / 1000) % ENCOURAGEMENTS.length])
     setTimeout(() => setCelebrate(null), 3500)
+    // Satisfying completion feedback: chime, light haptic, confetti pop.
+    sfx.playComplete()
+    haptics.tapLight()
+    confettiCelebrate()
   }
 
-  async function handleAdd(title: string, xpReward: number) {
+  async function handleAdd(title: string, xpReward: number, notes?: string) {
     if (DEV_NO_AUTH) {
-      setTasks((prev) => [localTask(title, xpReward), ...prev])
+      setTasks((prev) => [
+        localTask(title, xpReward, notes, nextTaskSeq(prev)),
+        ...prev,
+      ])
       return
     }
-    const task = await apiAddTask(title, xpReward)
+    const task = await apiAddTask(title, xpReward, notes)
     setTasks((prev) => [task, ...prev])
   }
 
@@ -162,6 +210,7 @@ export default function App() {
       )
       cheer()
       onTaskCompleted()
+      registerStreak()
       applyLevelUp(prevStage, newStage)
       return
     }
@@ -177,7 +226,10 @@ export default function App() {
     )
     cheer()
     onTaskCompleted()
+    registerStreak()
     applyLevelUp(prevStage, updated.stage)
+    // The RPC advanced the server-side streak; refresh the authoritative count.
+    void fetchProfile().then(setProfile).catch(() => {})
   }
 
   // Undo an accidental completion: reopen the task and reverse the XP + hunger it gave.
@@ -195,7 +247,9 @@ export default function App() {
       onTaskUndone()
       return
     }
-    // TODO(real mode): needs a Supabase "uncomplete" RPC to reverse XP server-side.
+    // Real mode: atomic server reversal (XP + stage + hunger), then mark the task open.
+    const updated = await apiUncompleteTask(taskId)
+    setCreature(updated)
     setTasks((prev) =>
       prev.map((t) =>
         t.id === taskId ? { ...t, is_done: false, completed_at: null } : t,
@@ -245,12 +299,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-amber-300">
+      <Onboarding />
       <Home
         creature={creature}
         tasks={tasks}
         loading={loading}
         error={error}
         hunger={hunger}
+        streak={streak}
         night={night}
         leveledTo={leveledTo}
         celebrate={celebrate}
@@ -266,6 +322,16 @@ export default function App() {
         onDelete={handleDelete}
         onDevEvolve={
           DEV_NO_AUTH && import.meta.env.DEV ? handleDevEvolve : undefined
+        }
+        onDevFeed={
+          DEV_NO_AUTH && import.meta.env.DEV
+            ? () => devAdjustHunger(20)
+            : undefined
+        }
+        onDevStarve={
+          DEV_NO_AUTH && import.meta.env.DEV
+            ? () => devAdjustHunger(-20)
+            : undefined
         }
       />
     </div>

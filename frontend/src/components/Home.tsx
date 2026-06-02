@@ -10,6 +10,7 @@ interface Props {
   loading: boolean
   error: string | null
   hunger: number
+  streak: number
   night: boolean
   leveledTo: string | null
   celebrate: string | null
@@ -17,11 +18,13 @@ interface Props {
   onToggleNight: () => void
   onSignOut: () => void
   onRename: (name: string) => void
-  onAdd: (title: string, xpReward: number) => Promise<void>
+  onAdd: (title: string, xpReward: number, notes?: string) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
   onUncomplete: (taskId: string) => Promise<void>
   onDelete: (taskId: string) => Promise<void>
   onDevEvolve?: () => void
+  onDevFeed?: () => void
+  onDevStarve?: () => void
 }
 
 export default function Home({
@@ -30,6 +33,7 @@ export default function Home({
   loading,
   error,
   hunger,
+  streak,
   night,
   leveledTo,
   celebrate,
@@ -42,6 +46,8 @@ export default function Home({
   onUncomplete,
   onDelete,
   onDevEvolve,
+  onDevFeed,
+  onDevStarve,
 }: Props) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col overflow-hidden bg-[#fdf6e3] shadow-2xl sm:my-4 sm:min-h-[calc(100vh-2rem)] sm:rounded-[2rem]">
@@ -70,14 +76,32 @@ export default function Home({
 
       {creature && <StatsPanel creature={creature} hunger={hunger} />}
 
-      {onDevEvolve && (
-        <div className="mt-6 flex justify-center">
-          <button
-            onClick={onDevEvolve}
-            className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800"
-          >
-            🧪 Dev: Evolve →
-          </button>
+      {(onDevEvolve || onDevFeed || onDevStarve) && (
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {onDevEvolve && (
+            <button
+              onClick={onDevEvolve}
+              className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800"
+            >
+              🧪 Dev: Evolve →
+            </button>
+          )}
+          {onDevStarve && (
+            <button
+              onClick={onDevStarve}
+              className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800"
+            >
+              😋 Starve −20
+            </button>
+          )}
+          {onDevFeed && (
+            <button
+              onClick={onDevFeed}
+              className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800"
+            >
+              🍖 Feed +20
+            </button>
+          )}
         </div>
       )}
 
@@ -89,6 +113,7 @@ export default function Home({
         )}
         <TaskList
           tasks={tasks}
+          streak={streak}
           onAdd={onAdd}
           onComplete={onComplete}
           onUncomplete={onUncomplete}

@@ -63,3 +63,83 @@ body {
   display: inline-block;
   animation: count-pop 0.45s ease-out;
 }
+
+/* "+XP" reward floats up from the completed task and fades. */
+@keyframes xp-float {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-6px) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-34px) scale(1.1);
+  }
+}
+
+.xp-float {
+  animation: xp-float 0.9s ease-out forwards;
+}
+
+/* Completion check badge gives a quick satisfying scale when a task is marked done. */
+@keyframes pop-check {
+  0% {
+    transform: scale(0.6);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pop-check {
+  animation: pop-check 0.35s ease-out;
+}
+
+/* New task rows slide+fade in. */
+@keyframes row-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.row-in {
+  animation: row-in 0.3s ease-out;
+}
+
+/* A hungry pet gently pulses to ask for care. */
+@keyframes hungry-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.hungry-pulse {
+  animation: hungry-pulse 1.6s ease-in-out infinite;
+}
+
+/* Accessibility: honor reduced-motion by neutralizing the non-essential flourishes. */
+@media (prefers-reduced-motion: reduce) {
+  .heart-float,
+  .count-pop,
+  .xp-float,
+  .pop-check,
+  .row-in,
+  .hungry-pulse {
+    animation: none;
+  }
+}

@@ -59,14 +59,31 @@ export interface UseHunger {
   hunger: number
   onTaskCompleted: () => void
   onTaskUndone: () => void
+  devAdjustHunger: (delta: number) => void
 }
 
-export function useHunger(): UseHunger {
+// `serverSeed` (real mode) makes hunger server-authoritative: the bar seeds from the
+// creature row and re-seeds whenever the server returns a new value. Without it (dev mode)
+// hunger is localStorage-backed exactly as before. Local +/- nudges stay for instant
+// feedback; in real mode the next server re-seed reconciles them.
+export function useHunger(serverSeed?: {
+  value: number
+  updatedAt: number
+}): UseHunger {
+  const controlled = serverSeed != null
+
   const [state, setState] = useState<HungerState>(() => {
-    const decayed = applyDecay(readState(), Date.now())
-    writeState(decayed)
+    const decayed = applyDecay(serverSeed ?? readState(), Date.now())
+    if (!controlled) writeState(decayed)
     return decayed
   })
+
+  // Re-seed from the server when the authoritative value changes (real mode only).
+  useEffect(() => {
+    if (!serverSeed) return
+    setState(applyDecay(serverSeed, Date.now()))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverSeed?.value, serverSeed?.updatedAt])
 
   // Live decay tick.
   useEffect(() => {
@@ -74,31 +91,30 @@ export function useHunger(): UseHunger {
       setState((prev) => {
         const next = applyDecay(prev, Date.now())
         if (next === prev) return prev
-        writeState(next)
+        if (!controlled) writeState(next)
         return next
       })
     }, TICK_MS)
     return () => clearInterval(id)
-  }, [])
+  }, [controlled])
 
-  const onTaskCompleted = useCallback(() => {
-    setState((prev) => {
-      const decayed = applyDecay(prev, Date.now())
-      const next = { value: clamp(decayed.value + 1), updatedAt: decayed.updatedAt }
-      writeState(next)
-      return next
-    })
-  }, [])
+  const nudge = useCallback(
+    (delta: number) => {
+      setState((prev) => {
+        const decayed = applyDecay(prev, Date.now())
+        const next = { value: clamp(decayed.value + delta), updatedAt: decayed.updatedAt }
+        if (!controlled) writeState(next)
+        return next
+      })
+    },
+    [controlled],
+  )
 
+  const onTaskCompleted = useCallback(() => nudge(1), [nudge])
   // Reverse of onTaskCompleted, for undoing an accidental completion.
-  const onTaskUndone = useCallback(() => {
-    setState((prev) => {
-      const decayed = applyDecay(prev, Date.now())
-      const next = { value: clamp(decayed.value - 1), updatedAt: decayed.updatedAt }
-      writeState(next)
-      return next
-    })
-  }, [])
+  const onTaskUndone = useCallback(() => nudge(-1), [nudge])
+  // Dev/testing helper: nudge hunger by an arbitrary delta (e.g. food test buttons).
+  const devAdjustHunger = useCallback((d: number) => nudge(d), [nudge])
 
-  return { hunger: state.value, onTaskCompleted, onTaskUndone }
+  return { hunger: state.value, onTaskCompleted, onTaskUndone, devAdjustHunger }
 }

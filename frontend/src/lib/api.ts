@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient'
-import type { Creature, Task } from '../types'
+import type { Creature, Profile, Task } from '../types'
 
 export async function fetchCreature(): Promise<Creature> {
   const { data, error } = await supabase
@@ -56,4 +56,35 @@ export async function completeTask(taskId: string): Promise<Creature> {
 export async function deleteTask(taskId: string): Promise<void> {
   const { error } = await supabase.from('todomon_tasks').delete().eq('id', taskId)
   if (error) throw error
+}
+
+// Atomic reverse of completeTask: reopens the task, subtracts its XP, de-evolves if
+// needed, nudges hunger down. Returns the updated creature.
+export async function uncompleteTask(taskId: string): Promise<Creature> {
+  const { data, error } = await supabase.rpc('todomon_uncomplete_task', {
+    p_task_id: taskId,
+  })
+  if (error) throw error
+  return data as Creature
+}
+
+export async function updateCreatureName(name: string): Promise<void> {
+  const { data: userData } = await supabase.auth.getUser()
+  const uid = userData.user?.id
+  if (!uid) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('todomon_creatures')
+    .update({ name })
+    .eq('user_id', uid)
+  if (error) throw error
+}
+
+export async function fetchProfile(): Promise<Profile> {
+  const { data, error } = await supabase
+    .from('todomon_profiles')
+    .select('*')
+    .single()
+  if (error) throw error
+  return data as Profile
 }
