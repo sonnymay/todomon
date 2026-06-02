@@ -3,11 +3,26 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-01 (monetization: ToDoMon Pro one-time unlock — code complete)_
+_Last updated: 2026-06-02 (App Store Connect app record created)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-02) App Store Connect app record created ✅
+Created Apple Developer bundle ID and App Store Connect app record:
+- Bundle ID: `com.sonnymay.todomon`
+- Apple Developer App ID description: `ToDoMon`
+- App Store Connect app name: `ToDoMon: Pet & To-Do`
+- App Store Connect app ID: `6776013029`
+- Primary language: English (U.S.)
+- SKU: `com.sonnymay.todomon`
+- User Access: Full Access
+
+Still required for IAP revenue:
+- Create App Store Connect non-consumable IAP `todomon_pro` at `$4.99`.
+- Create RevenueCat entitlement `pro`, attach `todomon_pro`, and add the iOS public SDK key to
+  `frontend/.env` as `VITE_REVENUECAT_IOS_API_KEY`.
 
 ### (2026-06-02) Task A unblocked — assets/ source folder created ✅
 `assets/icon.png` + `assets/splash.png` (1024²) now exist, copied from the existing
@@ -50,7 +65,6 @@ Verification:
   '/Library/Developer/CommandLineTools' is a command line tools instance`.
 
 Need user action before continuing Task B/C:
-- Place generated icon at `assets/icon.png` to unblock Task A.
 - Install full Xcode and run:
   `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
 - Create App Store Connect non-consumable IAP `todomon_pro` at `$4.99`.
