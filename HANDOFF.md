@@ -3,11 +3,81 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-01 (real-mode persistence built; dev mode still default)_
+_Last updated: 2026-06-01 (monetization: ToDoMon Pro one-time unlock — code complete)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-01) Monetization: ToDoMon Pro one-time unlock ($4.99) — code complete ✅
+Chosen model (recommended for a solo first launch): **one-time non-consumable "Pro" unlock**
+(`todomon_pro`, $4.99) → all premium cosmetics + **2× coins forever** + Pro badge. Built + verified
+in preview with a dev-mock purchase.
+- `lib/iap.ts` — entitlement (`isPro`, localStorage `todomon_pro_v1`), `purchasePro`/`restorePurchases`
+  with a **web mock** (instant grant, fully testable) and **native StoreKit seams**
+  (`nativePurchase`/`nativeRestore` — TODO, wired during the on-device IAP step).
+- `components/Paywall.tsx` (benefits + Unlock + **Restore**), Pro banner + 🔒 Pro gating in `Shop`,
+  Go-Pro row in `Settings`, premium cosmetics flagged `pro` in `cosmetics.ts` (`PRO_COSMETIC_IDS`),
+  `gameStore.grantProCosmetics`, and a coin multiplier arg on `recordCompletion` (App passes ×2 when Pro).
+- Verified: paywall → mock buy → `todomon_pro_v1='1'` + the 3 premium cosmetics granted + a SMALL
+  task paid 14 (=2×5 base + 4 streak vs 9 non-Pro). `npm run build` green (110 modules); 31 tests
+  pass; clean reload 0 runtime errors.
+- **To actually charge money (needs your Xcode + App Store Connect):** install a Capacitor IAP
+  plugin (RevenueCat recommended) + `cap sync`, wire the two `iap.ts` seams to product `todomon_pro`,
+  and create that non-consumable IAP at $4.99 in App Store Connect (sandbox-test on device).
+  See `docs/SHIP_PLAN.md`. You ARE enrolled in the Apple Developer Program (the main gate is cleared).
+- **Still required before submit (separate):** app icon + splash, hosted privacy-policy URL,
+  screenshots, portrait lock — then Xcode build → TestFlight → submit.
+
+### (2026-06-01) Engagement update: coins, quests, achievements, cosmetics, feed, celebrations ✅
+A full habit-loop layer, all offline/client-side, persisted to `todomon_game_v1`. Verified live.
+- **Pure logic + tests** (Vitest, now **31 pass**): `lib/economy.ts` (coin rewards by difficulty +
+  streak, lucky bonus, feed cost, streak-milestone rewards, daily bonus), `lib/quests.ts`
+  (deterministic daily roll + advance + claimable), `lib/achievements.ts` (11 trophies + evaluate/
+  newlyUnlocked), `lib/cosmetics.ts` (auras/frames/flair catalog), `lib/gameTypes.ts` (shared types).
+  Each with a `.test.ts`.
+- **Store**: `lib/gameStore.ts` — `useGameStore(today)` owns coins/stats/quests/achievements/owned+
+  equipped cosmetics, persists one blob, exposes `recordCompletion/recordEvolve/feed/claimQuest/
+  claimDailyBonus/buy/equip/markAchievementsSeen`, returns reward events for the UI.
+- **Wiring** (`App.tsx`): `awardCompletion()` (coins+lucky+milestone+quests+achievements) in both
+  complete branches; `handleFeed` (spend coins → +hunger + happy reaction); daily-bonus effect;
+  evolution celebration + `recordEvolve` in `applyLevelUp`; transient coin-gain + achievement-toast
+  overlays; `useStreak.registerCompletion` now returns the new streak. Restart clears the game blob.
+- **UI**: coin counter + coin-float + name flair in `TopBar`; **Feed button + mood + evolve nudge**
+  in `StatsPanel`; **difficulty picker** (Quick/Medium/Big) + (existing) per-task animations in
+  `TaskList`; equipped **aura (vignette glow) + frame** in `CreatureScene` + feed-bounce; an icon
+  **action row** (🛒 Shop / 🎯 Quests / 🏆 Trophies / 📊 Stats with claim/unseen dots) in `Home`;
+  new bottom-sheets `Shop/Quests/Achievements/Stats` (+ shared `Sheet.tsx`); full-screen
+  `EvolutionCelebration`. New CSS keyframes: coin-float, toast-in, celebrate-pop, feed-bounce
+  (all reduced-motion gated).
+- Verified live: complete → coins + quest progress + first_task trophy (+reward); feed spends 12🪙,
+  feedCount+quest advance, hunger clamps at 100; Shop buy auto-equips an aura that renders on the
+  scene; Trophies "1/11 unlocked"; Dev: Evolve → full-screen "Evolution!" + maxStageIdx recorded;
+  daily bonus +20 on open. `npm run build` green (108 modules); console clean.
+
+### (2026-06-01) Offline-first v1 foundation: on-device persistence, edit, settings, asset diet ✅
+Decision: ship a **free, offline / on-device v1** (no login). `DEV_NO_AUTH=true` is the shipping
+engine; the Supabase real-mode code becomes a v1.1 sync feature. Xcode is only needed for the final
+build/upload. Round 1 (all web layer, verified live):
+- **Durable on-device state** (the #1 offline gap — tasks/creature used to reset every launch):
+  new `lib/localStore.ts` (load/save creature + tasks to `todomon_creature_v1`/`todomon_tasks_v1`).
+  `App` loads persisted state or starts **fresh (egg, 0 XP, empty list)** on first launch via new
+  `freshCreature()`; a `useEffect([creature,tasks])` saves on every change. Verified: add/complete/
+  edit → reload → state intact; completing gave +20 XP persisted.
+- **Edit task**: tap an open task's title → inline title/notes edit form (Save/Cancel);
+  `App.handleEdit` + `api.updateTask` (real mode). `TaskList` gained the edit state.
+- **Settings sheet** (new `components/Settings.tsx`): replaces the ☰ dropdown — Sound + Haptics
+  toggles (new `haptics.isHapticsOn/setHapticsOn`), rename, **Restart pet** (confirm → wipes state
+  + reload), "everything stays on your device" note, v1.0.0. `TopBar` simplified (☰ →
+  `onOpenSettings`; Sign out removed — meaningless offline).
+- **Native feel**: `viewport-fit=cover` + `env(safe-area-inset-*)` padding on TopBar/task area/
+  Settings sheet so content clears the notch + home indicator.
+- **Asset diet — 70 MB → ~13 MB**: deleted unused legacy bare `*.mp4` + abandoned `*.webm`; ffmpeg
+  re-encoded every `sun_dragon_*` video (H.264 crf28, ≤720w, 24fps, no audio, faststart);
+  `sips`-downscaled the sleeping PNGs. Originals backed up to `/tmp/todomon_*_orig`.
+- `npm test` 18 pass; `npm run build` green (97 modules); console clean on a fresh load.
+- **Round 2 (next, see plan):** app icon + splash, privacy-policy URL, screenshots, portrait lock,
+  optional depth (difficulty/due-dates/dark mode), then Xcode → TestFlight → submit.
 
 ### (2026-06-01) Real-mode persistence built (dev mode still default) ✅
 Implemented full Supabase-backed persistence so state survives reinstall when

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { Task } from '../types'
-import { DIFFICULTY_XP } from '../lib/stages'
+import { DIFFICULTY_XP, type Difficulty } from '../lib/stages'
 
 interface Props {
   tasks: Task[]
@@ -8,11 +8,15 @@ interface Props {
   onAdd: (title: string, xpReward: number, notes?: string) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
   onUncomplete: (taskId: string) => Promise<void>
+  onEdit: (taskId: string, title: string, notes: string) => Promise<void>
   onDelete: (taskId: string) => Promise<void>
 }
 
-// Every task is worth the same (kept simple — no difficulty picker shown to the user).
-const TASK_XP = DIFFICULTY_XP.SMALL
+const DIFFICULTIES: { key: Difficulty; label: string; emoji: string }[] = [
+  { key: 'SMALL', label: 'Quick', emoji: '🟢' },
+  { key: 'MEDIUM', label: 'Medium', emoji: '🟡' },
+  { key: 'LARGE', label: 'Big', emoji: '🔴' },
+]
 
 export default function TaskList({
   tasks,
@@ -20,15 +24,34 @@ export default function TaskList({
   onAdd,
   onComplete,
   onUncomplete,
+  onEdit,
   onDelete,
 }: Props) {
   const [title, setTitle] = useState('')
   const [notes, setNotes] = useState('')
+  const [difficulty, setDifficulty] = useState<Difficulty>('SMALL')
   const [adding, setAdding] = useState(false)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [pop, setPop] = useState(false)
   // Task id currently playing its completion flourish (badge pop + "+XP" float).
   const [celebratingId, setCelebratingId] = useState<string | null>(null)
+  // Task being edited inline, plus its draft fields.
+  const [editId, setEditId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editNotes, setEditNotes] = useState('')
+
+  function startEdit(t: Task) {
+    setEditId(t.id)
+    setEditTitle(t.title)
+    setEditNotes(t.notes ?? '')
+  }
+
+  async function submitEdit(e: FormEvent) {
+    e.preventDefault()
+    if (!editId) return
+    await onEdit(editId, editTitle, editNotes)
+    setEditId(null)
+  }
 
   const completedCount = tasks.filter((t) => t.is_done).length
 
@@ -59,7 +82,7 @@ export default function TaskList({
     if (!t) return
     setAdding(true)
     try {
-      await onAdd(t, TASK_XP, notes.trim() || undefined)
+      await onAdd(t, DIFFICULTY_XP[difficulty], notes.trim() || undefined)
       setTitle('')
       setNotes('')
     } finally {
@@ -152,6 +175,22 @@ export default function TaskList({
           placeholder="Add a note… (optional)"
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
         />
+        <div className="flex gap-2">
+          {DIFFICULTIES.map((d) => (
+            <button
+              key={d.key}
+              type="button"
+              onClick={() => setDifficulty(d.key)}
+              className={`flex-1 rounded-xl px-2 py-1.5 text-xs font-bold transition ${
+                difficulty === d.key
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'bg-white text-slate-500 ring-1 ring-slate-200'
+              }`}
+            >
+              {d.emoji} {d.label} · {DIFFICULTY_XP[d.key]}xp
+            </button>
+          ))}
+        </div>
       </form>
 
       <ul className="mt-3 space-y-2.5">
@@ -183,25 +222,65 @@ export default function TaskList({
                 )}
               </div>
 
-              <div className="min-w-0 flex-1">
-                <p
-                  className={`truncate font-bold text-slate-800 ${
-                    t.is_done ? 'line-through' : ''
-                  }`}
+              {editId === t.id ? (
+                <form onSubmit={submitEdit} className="min-w-0 flex-1 space-y-2">
+                  <input
+                    autoFocus
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Escape' && setEditId(null)}
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
+                  />
+                  <input
+                    value={editNotes}
+                    onChange={(e) => setEditNotes(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Escape' && setEditId(null)}
+                    placeholder="Note (optional)"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditId(null)}
+                      className="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-orange-500 px-3 py-1.5 text-xs font-extrabold text-white active:scale-95"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => !t.is_done && startEdit(t)}
+                  disabled={t.is_done}
+                  className="min-w-0 flex-1 text-left"
+                  aria-label={t.is_done ? undefined : `Edit ${t.title}`}
                 >
-                  {t.title}
-                </p>
-                {t.notes && (
-                  <p className="truncate text-xs text-slate-500">{t.notes}</p>
-                )}
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="flex items-center gap-1 text-xs font-semibold text-amber-600">
-                    ⭐ +{t.xp_reward}
-                  </span>
-                </div>
-              </div>
+                  <p
+                    className={`truncate font-bold text-slate-800 ${
+                      t.is_done ? 'line-through' : ''
+                    }`}
+                  >
+                    {t.title}
+                  </p>
+                  {t.notes && (
+                    <p className="truncate text-xs text-slate-500">{t.notes}</p>
+                  )}
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-amber-600">
+                      ⭐ +{t.xp_reward}
+                    </span>
+                  </div>
+                </button>
+              )}
 
-              {t.is_done ? (
+              {editId === t.id ? null : t.is_done ? (
                 <button
                   aria-label="Undo (mark not done)"
                   disabled={busyId === t.id}

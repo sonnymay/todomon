@@ -15,6 +15,9 @@ interface Props {
   justLeveledTo: string | null
   celebration: string | null
   greeting: string | null
+  aura: string | null // CSS color for the glow behind the pet
+  frame: string | null // CSS border for the scene frame
+  feedSignal: number // changes to trigger a happy feed reaction
   topBar: ReactNode
   onToggleNight: () => void
 }
@@ -32,6 +35,9 @@ export default function CreatureScene({
   justLeveledTo,
   celebration,
   greeting,
+  aura,
+  frame,
+  feedSignal,
   topBar,
   onToggleNight,
 }: Props) {
@@ -57,7 +63,22 @@ export default function CreatureScene({
   // Tap-the-pet delight: a little bounce + a floating heart (awake only).
   const [hearts, setHearts] = useState<number[]>([])
   const [bounce, setBounce] = useState(false)
+  const [feeding, setFeeding] = useState(false)
   const heartId = useRef(0)
+
+  // Happy reaction when fed (feedSignal increments on each feed).
+  useEffect(() => {
+    if (feedSignal <= 0) return
+    setFeeding(true)
+    const id = heartId.current++
+    setHearts((h) => [...h, id])
+    const t1 = setTimeout(() => setHearts((h) => h.filter((x) => x !== id)), 900)
+    const t2 = setTimeout(() => setFeeding(false), 600)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
+  }, [feedSignal])
 
   function petTheDragon() {
     if (night) return // it's sleeping 😴
@@ -80,6 +101,19 @@ export default function CreatureScene({
         backgroundColor: '#fff7ed',
       }}
     >
+      {/* equipped aura — a colored vignette glow that frames the pet without hiding it */}
+      {aura && !night && (
+        <div
+          className="pointer-events-none"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 2,
+            background: `radial-gradient(circle at 50% 55%, transparent 38%, ${aura} 100%)`,
+          }}
+        />
+      )}
+
       {/* pet media (bounces when tapped) */}
       <div
         style={{
@@ -94,7 +128,11 @@ export default function CreatureScene({
             bounce transform (inline transform on the parent would override an
             animation set on the same element). */}
         <div
-          className={showHungry ? 'hungry-pulse' : undefined}
+          className={
+            [feeding ? 'feed-bounce' : '', showHungry ? 'hungry-pulse' : '']
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
           style={{ position: 'absolute', inset: 0 }}
         >
           <video
@@ -251,6 +289,20 @@ export default function CreatureScene({
         >
           Evolved to {justLeveledTo}! ✨
         </div>
+      )}
+
+      {/* equipped frame — a decorative border around the whole scene */}
+      {frame && (
+        <div
+          className="pointer-events-none"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 35,
+            border: frame,
+            borderRadius: 'inherit',
+          }}
+        />
       )}
     </div>
   )

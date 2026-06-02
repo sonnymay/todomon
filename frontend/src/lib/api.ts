@@ -53,6 +53,18 @@ export async function completeTask(taskId: string): Promise<Creature> {
   return data as Creature
 }
 
+export async function updateTask(
+  taskId: string,
+  title: string,
+  notes: string | null,
+): Promise<void> {
+  const { error } = await supabase
+    .from('todomon_tasks')
+    .update({ title, notes })
+    .eq('id', taskId)
+  if (error) throw error
+}
+
 export async function deleteTask(taskId: string): Promise<void> {
   const { error } = await supabase.from('todomon_tasks').delete().eq('id', taskId)
   if (error) throw error

@@ -58,7 +58,7 @@ function write(state: StreakState): void {
 
 export interface UseStreak {
   streak: number
-  registerCompletion: () => void
+  registerCompletion: () => number
 }
 
 // Normalize a Postgres `date` ("2026-06-01") to the toDateString() form the streak logic
@@ -89,14 +89,15 @@ export function useStreak(serverSeed?: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverSeed?.count, serverSeed?.lastDate])
 
-  const register = useCallback(() => {
-    setState((prev) => {
-      const next = registerCompletion(prev, Date.now())
-      if (next === prev) return prev
+  const register = useCallback((): number => {
+    const now = Date.now()
+    const next = registerCompletion(state, now)
+    if (next !== state) {
       if (!controlled) write(next)
-      return next
-    })
-  }, [controlled])
+      setState(next)
+    }
+    return currentStreak(next, now)
+  }, [controlled, state])
 
   return { streak: currentStreak(state, Date.now()), registerCompletion: register }
 }

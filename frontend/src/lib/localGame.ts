@@ -33,8 +33,21 @@ export function setStoredPetName(name: string): void {
   }
 }
 
-// Seeded so the screen looks like the mockup (an evolved creature mid-progress).
-// Under the ramping curve, 14,750 XP ≈ level 50 → champion stage.
+// A brand-new pet: an egg at 0 XP. This is the real first-run state for the offline app —
+// the player grows it from scratch by completing tasks.
+export function freshCreature(): Creature {
+  return {
+    id: localId(),
+    user_id: DEV_USER,
+    name: getStoredPetName(),
+    stage: stageForXp(0),
+    xp: 0,
+    created_at: now(),
+    updated_at: now(),
+  }
+}
+
+// Demo seed (champion mid-progress) — kept for the mockup/screenshots under import.meta.env.DEV.
 export function seedCreature(): Creature {
   const xp = 14750
   return {
