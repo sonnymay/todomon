@@ -7,18 +7,19 @@
   },
   "scripts": {
     "build": "npm --prefix frontend run build",
-    "cap:sync:ios": "npm run build && npx cap sync ios",
-    "ios:open": "npx cap open ios"
+    "cap:sync:ios": "npm run build && bash scripts/run-capacitor.sh sync ios",
+    "ios:open": "bash scripts/run-capacitor.sh open ios"
   },
   "keywords": [],
   "author": "",
   "private": true,
   "dependencies": {
-    "@capacitor/core": "^7.6.5",
-    "@capacitor/ios": "^7.6.5"
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/ios": "^8.4.0",
+    "@revenuecat/purchases-capacitor": "^13.1.4"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.6.5",
+    "@capacitor/cli": "^8.4.0",
     "typescript": "^6.0.3"
   }
 }

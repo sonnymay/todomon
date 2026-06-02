@@ -9,6 +9,45 @@ _Last updated: 2026-06-01 (monetization: ToDoMon Pro one-time unlock — code co
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-02) Task A blocked; Task B RevenueCat IAP wired ⚠️
+Task A from `docs/CODEX_TASKS.md` is blocked because `assets/icon.png` is not present yet.
+Moved to Task B as requested.
+
+Task B progress:
+- Installed `@revenuecat/purchases-capacitor`.
+- Upgraded root Capacitor packages to 8.4.0 so native plugins match Capacitor 8.
+- Added `scripts/run-capacitor.sh`; root `npm run cap:sync:ios` now uses Node >=22 when
+  available (Codex bundled Node 24 works on this Mac). System `node` is v20 and cannot run
+  Capacitor 8 CLI directly.
+- Raised iOS deployment target to 15.0 because RevenueCat's pod requires iOS 15+.
+- `frontend/src/lib/iap.ts` now wires native purchase/restore through RevenueCat:
+  `getProducts({ productIdentifiers: ['todomon_pro'], type: NON_SUBSCRIPTION })`,
+  `purchaseStoreProduct`, and `restorePurchases`.
+- Product remains exactly `todomon_pro`; price display remains `$4.99`.
+- Native RevenueCat config reads `VITE_REVENUECAT_IOS_API_KEY`.
+- Pro unlock succeeds if RevenueCat reports product `todomon_pro` purchased or active
+  entitlement `pro`/`todomon_pro`.
+- Web/dev mock path remains unchanged.
+- Added `docs/IAP_SETUP.md` with exact App Store Connect + RevenueCat setup.
+- Updated `docs/SHIP_PLAN.md` to point at the new IAP setup doc.
+
+Verification:
+- `cd frontend && npm run build` passes.
+- `cd frontend && npm test` passes: 31 tests.
+- `npm run cap:sync:ios` copies web assets and iOS config, sees the RevenueCat native plugin,
+  and passes the iOS 15 pod compatibility check. It then fails at `pod install` because full
+  Xcode is still not installed/selected:
+  `xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory
+  '/Library/Developer/CommandLineTools' is a command line tools instance`.
+
+Need user action before continuing Task B/C:
+- Place generated icon at `assets/icon.png` to unblock Task A.
+- Install full Xcode and run:
+  `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
+- Create App Store Connect non-consumable IAP `todomon_pro` at `$4.99`.
+- Create RevenueCat entitlement `pro`, attach `todomon_pro`, and add the iOS public SDK key to
+  `frontend/.env` as `VITE_REVENUECAT_IOS_API_KEY`.
+
 ### (2026-06-01) Monetization: ToDoMon Pro one-time unlock ($4.99) — code complete ✅
 Chosen model (recommended for a solo first launch): **one-time non-consumable "Pro" unlock**
 (`todomon_pro`, $4.99) → all premium cosmetics + **2× coins forever** + Pro badge. Built + verified

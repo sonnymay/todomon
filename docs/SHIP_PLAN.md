@@ -37,12 +37,14 @@ seam), `components/Paywall.tsx`, Pro gating in `Shop`, a Go-Pro row in `Settings
 in `App.awardCompletion`, `gameStore.grantProCosmetics`. Restore Purchases included.
 
 **Remaining native step (needs Xcode + your App Store Connect):**
-1. `npm i @capacitor-community/in-app-purchase` (or `@revenuecat/purchases-capacitor` — recommended
-   for receipt validation) and `npx cap sync ios`.
-2. Wire the two TODO seams in `lib/iap.ts` (`nativePurchase`/`nativeRestore`) to the plugin for
-   product `todomon_pro`.
-3. **[YOU]** In App Store Connect: create the non-consumable IAP `todomon_pro` at $4.99, attach it
-   to the app, and test the purchase in the sandbox on a device.
+1. RevenueCat is installed/wired in `frontend/src/lib/iap.ts` for product `todomon_pro`.
+2. **[YOU]** In App Store Connect: create the non-consumable IAP `todomon_pro` at $4.99.
+3. **[YOU]** In RevenueCat: create entitlement `pro`, attach product `todomon_pro`, and copy the
+   iOS public SDK key into `frontend/.env` as `VITE_REVENUECAT_IOS_API_KEY`.
+4. Install/select full Xcode, then run `npm run cap:sync:ios`.
+5. Test the purchase in the sandbox on a device or TestFlight.
+
+Detailed setup: `docs/IAP_SETUP.md`.
 
 ## C. Submission prep — mostly **[ME]**, verified on device by **[YOU]**
 - **[ME]** App icon (1024²) + splash via `@capacitor/assets`.
