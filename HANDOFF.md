@@ -3,11 +3,42 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-02 (App Store Connect app record created)_
+_Last updated: 2026-06-02 (IAP mostly configured; RevenueCat entitlement/key pending)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-02) IAP setup progress — App Store Connect ready, RevenueCat partly configured ⚠️
+App Store Connect IAP `todomon_pro` is created and now `Ready to Submit`:
+- App Store Connect IAP Apple ID: `6776014662`
+- Type: Non-consumable
+- Reference name/display name: `ToDoMon Pro`
+- Product ID: `todomon_pro`
+- Base price: United States `$4.99`
+- Availability: all 175 countries/regions, plus future regions
+- English (U.S.) localization: `ToDoMon Pro` / `Unlock cosmetics and 2x coins forever.`
+- Review screenshot uploaded from local paywall capture.
+
+RevenueCat progress:
+- Created project `ToDoMon` (`a1bd01f1`).
+- Created App Store app config `ToDoMon (App Store)` (`appbc2234f02f`) with bundle
+  `com.sonnymay.todomon`.
+- Reused existing valid Apple in-app purchase key `6U6TR79P58`.
+- Created RevenueCat product `todomon_pro` (`prodd6aadc1734`) as non-consumable.
+- Product store status shows `Could not check` because App Store Connect API key import config is
+  still missing, but the App Store in-app purchase key is valid.
+
+Still required for working RevenueCat purchase path:
+- Create/attach RevenueCat entitlement `pro` to product `todomon_pro`.
+- Copy RevenueCat iOS public SDK key into `frontend/.env` as `VITE_REVENUECAT_IOS_API_KEY`.
+- Optional but recommended: add App Store Connect API key in RevenueCat so product status/import can
+  be checked automatically.
+
+Blocked in this session because Chrome extension communication dropped while loading the RevenueCat
+Entitlements page. Chrome is running, Codex extension is installed/enabled, and native host manifest
+is correct. Next step: open a fresh Chrome window for the same profile and retry Chrome control, or
+finish the RevenueCat entitlement/key manually.
 
 ### (2026-06-02) App Store Connect app record created ✅
 Created Apple Developer bundle ID and App Store Connect app record:
@@ -19,10 +50,7 @@ Created Apple Developer bundle ID and App Store Connect app record:
 - SKU: `com.sonnymay.todomon`
 - User Access: Full Access
 
-Still required for IAP revenue:
-- Create App Store Connect non-consumable IAP `todomon_pro` at `$4.99`.
-- Create RevenueCat entitlement `pro`, attach `todomon_pro`, and add the iOS public SDK key to
-  `frontend/.env` as `VITE_REVENUECAT_IOS_API_KEY`.
+IAP creation has since progressed; see the IAP setup note above.
 
 ### (2026-06-02) Task A unblocked — assets/ source folder created ✅
 `assets/icon.png` + `assets/splash.png` (1024²) now exist, copied from the existing
