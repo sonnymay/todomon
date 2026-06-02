@@ -9,8 +9,17 @@ _Last updated: 2026-06-01 (monetization: ToDoMon Pro one-time unlock — code co
 
 ## 0. Recent fixes (most recent first)
 
-### (2026-06-02) Task A blocked; Task B RevenueCat IAP wired ⚠️
-Task A from `docs/CODEX_TASKS.md` is blocked because `assets/icon.png` is not present yet.
+### (2026-06-02) Task A unblocked — assets/ source folder created ✅
+`assets/icon.png` + `assets/splash.png` (1024²) now exist, copied from the existing
+`frontend/public/icon-1024.png`. Note: the iOS `AppIcon.appiconset` was already populated
+with a byte-identical 1024² icon, so the app already ships a valid icon — Task A was only
+"blocked" on the missing `@capacitor/assets` *source* folder. `splash.png` is a placeholder
+(icon copy); for a proper splash use the mascot on cream `#fdf6e3` with padding.
+Did NOT run `npx @capacitor/assets generate` (appiconset already correct). Re-run it after
+dropping in final art: `cd frontend && npm i -D @capacitor/assets && cd .. && npx @capacitor/assets generate --ios --assetPath assets`.
+
+### (2026-06-02) Task A (prior) blocked; Task B RevenueCat IAP wired ⚠️
+Task A from `docs/CODEX_TASKS.md` was blocked because `assets/icon.png` was not present yet.
 Moved to Task B as requested.
 
 Task B progress:
