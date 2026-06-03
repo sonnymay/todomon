@@ -433,7 +433,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-amber-300">
-      <Onboarding />
+      {creature && (
+        <Onboarding
+          creature={creature}
+          tasks={tasks}
+          petName={creature.name}
+          onRename={handleRename}
+          onAdd={handleAdd}
+          onComplete={handleComplete}
+        />
+      )}
       <Home
         creature={creature}
         tasks={tasks}

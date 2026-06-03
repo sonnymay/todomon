@@ -52,6 +52,25 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-03) Interactive onboarding — learn the loop by doing it ✅
+Replaced the 3-screen explain-only intro with a guided bottom-sheet coach that drives the
+**real** app handlers, so a new user lives the core loop once before reaching Home.
+- `frontend/src/components/Onboarding.tsx` rewritten. Now takes props
+  (`creature`, `tasks`, `petName`, `onRename`, `onAdd`, `onComplete`) and runs a 4-step machine:
+  `meet` (optional rename) → `add` (tap a suggestion chip: Drink water / Make my bed / Read 1 page) →
+  `complete` (big Complete button) → `react` (explains growth/food/coins). Anchored bottom of the
+  `max-w-md` column with an upward scrim so the dragon scene stays visible and the real completion
+  reaction (speech bubble + heart + feedSignal, bars, coins) lands.
+- State advances via `useEffect`s watching `tasks`: `add→complete` resolves the added task by
+  **title match** (fresh user has 0 tasks); `complete→react` waits for real `is_done`. Taps fire
+  side effects; effects confirm state — UI never claims "done" prematurely. Chip handler guards
+  double-fire via `pendingTitle == null`.
+- Persistence unchanged: same `todomon_onboarded_v1` flag + `finish()` → returning users never
+  see it again.
+- `frontend/src/App.tsx`: `<Onboarding />` → guarded, prop-wired mount (`{creature && (...)}`),
+  reusing existing handlers — no new systems, no new handlers.
+- Works in dev/offline (`DEV_NO_AUTH`). Verified: `npm run build` + `npm test` (31) pass.
+
 ### (2026-06-02) Love-loop pass — emotional task→care→growth loop ✅
 From a live design review on localhost:5173. Highest-impact "love-loop" slice:
 - **Dragon-specific completion copy:** `cheer()` now sets `"{petName} loved that you
