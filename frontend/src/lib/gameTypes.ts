@@ -34,6 +34,16 @@ export interface DailyQuests {
   state: Record<string, QuestState>
 }
 
+// Dragon Diary: the single latest meaningful memory shown on Home.
+export type DiaryKind = 'completion' | 'streak' | 'evolution'
+
+export interface DiaryMemory {
+  kind: DiaryKind
+  text: string
+  emoji: string
+  at: number // epoch ms
+}
+
 export type CosmeticKind = 'aura' | 'frame' | 'flair'
 
 export interface EquippedCosmetics {
@@ -52,4 +62,5 @@ export interface GameState {
   equipped: EquippedCosmetics
   streakFreezes: number
   lastDailyBonus: string | null // toDateString()
+  lastMemory: DiaryMemory | null // latest Dragon Diary entry
 }

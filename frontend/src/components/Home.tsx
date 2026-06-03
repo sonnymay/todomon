@@ -7,6 +7,7 @@ import { anyClaimable } from '../lib/quests'
 import TopBar from './TopBar'
 import CreatureScene from './CreatureScene'
 import StatsPanel from './StatsPanel'
+import DragonDiary from './DragonDiary'
 import TaskList from './TaskList'
 import Shop from './Shop'
 import Quests from './Quests'
@@ -132,22 +133,13 @@ export default function Home({
         />
       )}
 
-      {/* engagement action row */}
-      <div className="mt-3 flex justify-center gap-2 px-3">
-        {actions.map((a) => (
-          <button
-            key={a.key}
-            onClick={() => setSheet(a.key)}
-            className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl bg-white py-2 text-slate-600 shadow-sm transition hover:bg-slate-50 active:scale-95"
-          >
-            <span className="text-xl">{a.emoji}</span>
-            <span className="text-[10px] font-bold">{a.label}</span>
-            {a.dot && (
-              <span className="absolute right-2 top-1.5 h-2.5 w-2.5 rounded-full bg-red-500" />
-            )}
-          </button>
-        ))}
-      </div>
+      {creature && (
+        <DragonDiary
+          memory={game.state.lastMemory ?? null}
+          petName={creature.name}
+          onOpen={() => setSheet('stats')}
+        />
+      )}
 
       {(onDevEvolve || onDevFeed || onDevStarve) && (
         <div className="mt-3 flex flex-wrap justify-center gap-2">
@@ -178,7 +170,7 @@ export default function Home({
         </div>
       )}
 
-      <div className="flex-1 pt-5 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="flex-1 pt-5 pb-[calc(6rem+env(safe-area-inset-bottom))]">
         {error && (
           <p className="mx-3 mb-3 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700">
             {error}
@@ -206,6 +198,24 @@ export default function Home({
       {sheet === 'quests' && <Quests game={game} onClose={() => setSheet(null)} />}
       {sheet === 'trophies' && <Achievements game={game} onClose={() => setSheet(null)} />}
       {sheet === 'stats' && <Stats game={game} streak={streak} onClose={() => setSheet(null)} />}
+
+      {/* bottom nav — Shop / Quests / Trophies / Stats live here so Home stays focused on
+          the dragon, pet status, and Today's tasks. Sheets (z-50) cover it when open. */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md justify-around gap-1 border-t border-black/5 bg-[#fdf6e3]/95 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur">
+        {actions.map((a) => (
+          <button
+            key={a.key}
+            onClick={() => setSheet(a.key)}
+            className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1.5 text-slate-600 transition active:scale-95"
+          >
+            <span className="text-xl">{a.emoji}</span>
+            <span className="text-[10px] font-bold">{a.label}</span>
+            {a.dot && (
+              <span className="absolute right-3 top-0.5 h-2.5 w-2.5 rounded-full bg-red-500" />
+            )}
+          </button>
+        ))}
+      </nav>
     </div>
   )
 }

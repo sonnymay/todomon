@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import type { Difficulty } from './stages'
-import type { GameState, GameStats } from './gameTypes'
+import type { DiaryMemory, GameState, GameStats } from './gameTypes'
 import {
   coinsForCompletion,
   luckyBonus,
@@ -37,6 +37,7 @@ function freshState(today: string): GameState {
     equipped: { aura: null, frame: null, flair: null },
     streakFreezes: 0,
     lastDailyBonus: null,
+    lastMemory: null,
   }
 }
 
@@ -93,6 +94,7 @@ export interface UseGameStore {
   equip: (cosmeticId: string) => void
   grantProCosmetics: () => void
   markAchievementsSeen: () => void
+  noteMemory: (m: Omit<DiaryMemory, 'at'>) => void
 }
 
 export function useGameStore(today: string): UseGameStore {
@@ -265,6 +267,15 @@ export function useGameStore(today: string): UseGameStore {
     })
   }, [])
 
+  // Record the latest Dragon Diary memory (completion / streak / evolution).
+  const noteMemory = useCallback((m: Omit<DiaryMemory, 'at'>): void => {
+    setState((prev) => {
+      const next = { ...prev, lastMemory: { ...m, at: Date.now() } }
+      write(next)
+      return next
+    })
+  }, [])
+
   const markAchievementsSeen = useCallback((): void => {
     setState((prev) => {
       if (prev.seenAchievements.length === prev.achievements.length) return prev
@@ -285,5 +296,6 @@ export function useGameStore(today: string): UseGameStore {
     equip,
     grantProCosmetics,
     markAchievementsSeen,
+    noteMemory,
   }
 }

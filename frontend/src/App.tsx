@@ -242,6 +242,12 @@ export default function App() {
       evolveBurst()
       const unlocked = game.recordEvolve(STAGE_ORDER.indexOf(nextStage as Stage))
       if (unlocked.length) showUnlocked(unlocked)
+      // Diary: evolution is the biggest event — recorded after awardCompletion so it wins.
+      game.noteMemory({
+        kind: 'evolution',
+        emoji: '🐲',
+        text: `Evolved to ${STAGE_LABEL[nextStage as keyof typeof STAGE_LABEL]}!`,
+      })
     }
   }
 
@@ -261,13 +267,24 @@ export default function App() {
 
   // Engagement rewards for a completed task: coins (by difficulty + streak), a rare lucky
   // bonus, streak-milestone bonus, quest progress, and any newly-unlocked achievements.
-  function awardCompletion(xpReward: number) {
+  function awardCompletion(xpReward: number, taskTitle?: string) {
     const newStreak = registerStreak()
     const res = game.recordCompletion(difficultyForXp(xpReward), newStreak, pro ? 2 : 1)
     const total = res.coins + res.lucky + res.milestone
     showCoins(total)
     if (res.lucky > 0 || res.milestone > 0) sfx.playLevelUp()
     if (res.unlocked.length) showUnlocked(res.unlocked)
+    // Diary: a streak milestone outranks a plain completion. Evolution (if any) overrides
+    // this later in applyLevelUp.
+    if (res.milestone > 0) {
+      game.noteMemory({ kind: 'streak', emoji: '🔥', text: `Reached a ${newStreak}-day streak!` })
+    } else {
+      game.noteMemory({
+        kind: 'completion',
+        emoji: '✅',
+        text: taskTitle ? `Finished “${taskTitle}”` : 'Finished a task',
+      })
+    }
   }
 
   async function handleAdd(title: string, xpReward: number, notes?: string) {
@@ -300,7 +317,7 @@ export default function App() {
       )
       cheer(task.title)
       onTaskCompleted()
-      awardCompletion(task.xp_reward)
+      awardCompletion(task.xp_reward, task.title)
       applyLevelUp(prevStage, newStage)
       return
     }
@@ -317,7 +334,7 @@ export default function App() {
     )
     cheer(task?.title ?? 'that task')
     onTaskCompleted()
-    awardCompletion(task?.xp_reward ?? 20)
+    awardCompletion(task?.xp_reward ?? 20, task?.title)
     applyLevelUp(prevStage, updated.stage)
     // The RPC advanced the server-side streak; refresh the authoritative count.
     void fetchProfile().then(setProfile).catch(() => {})

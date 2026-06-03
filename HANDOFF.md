@@ -52,6 +52,24 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-03) Bottom-nav Home + Dragon Diary preview ✅
+Decluttered Home and turned stats into story.
+- **Bottom nav:** Shop/Quests/Trophies/Stats moved off the inline action row into a fixed
+  bottom-nav (`Home.tsx`, `z-30`, cream `#fdf6e3/95` + backdrop-blur, reuses the existing
+  `actions` array + `questDot`/`trophyDot` badges). Home body is now dragon → pet status →
+  Diary → Today's tasks. TaskList bottom padding raised to `6rem` to clear the nav. Sheets
+  (z-50) still cover the nav; onboarding (z-40) sits above it on first run.
+- **Dragon Diary:** new `components/DragonDiary.tsx` — small cream card showing the single
+  latest meaningful memory with relative time; tap opens the Stats sheet. Empty state before
+  first completion.
+- **Memory source (minimal, no new system):** added `GameState.lastMemory: DiaryMemory | null`
+  (`gameTypes.ts`) + a tiny `noteMemory()` method (`gameStore.ts`). Populated from `App.tsx`:
+  `awardCompletion` writes a `streak` memory when a milestone fires, else a `completion` memory
+  with the task title; `applyLevelUp` writes an `evolution` memory after `recordEvolve` (runs
+  after awardCompletion, so evolution correctly wins). Old saves lack the field → reads as
+  `undefined`, normalized with `?? null`; no migration.
+- Verified: `npm run build` + `npm test` (31) pass.
+
 ### (2026-06-03) Interactive onboarding — learn the loop by doing it ✅
 Replaced the 3-screen explain-only intro with a guided bottom-sheet coach that drives the
 **real** app handlers, so a new user lives the core loop once before reaching Home.
