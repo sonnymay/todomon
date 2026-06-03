@@ -68,6 +68,15 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-03) iOS archive/export tooling for TestFlight ✅
+- Pushed pending commit `4d9320c` (env-driven offline mode); remote main now current.
+- Added `ios/ExportOptions.plist` (App Store export, automatic signing). Replace
+  `__APPLE_TEAM_ID__` with the 10-char Apple Team ID before `xcodebuild -exportArchive`.
+  If Xcode < 15.3, change `method` to `app-store`.
+- iOS facts: bundle id `com.sonnymay.todomon`, version `1.0`, build `1`.
+- Still blocked on full Xcode install + `xcode-select` (machine step). Codex prompt updated to
+  archive → export/upload once `xcodebuild -version` works and the Team ID is filled.
+
 ### (2026-06-03) Pre-TestFlight audit + offline mode is now env-driven ✅
 Audit before a TestFlight build:
 - `frontend/.env.example` documents `VITE_REVENUECAT_IOS_API_KEY` ✓.
