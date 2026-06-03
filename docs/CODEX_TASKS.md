@@ -38,12 +38,13 @@ centers it on the splash; the cream matches the app's background so there's no f
 
 ### Task A — Turn the AI art into the iOS icon + splash
 > In `/Users/santipapmay/Desktop/todomon`, I placed a 1024×1024 app icon at `assets/icon.png`
-> (and a logo at `assets/splash.png`). Install `@capacitor/assets`
-> (`cd frontend && npm i -D @capacitor/assets`), then from the repo root run
+> (and a logo at `assets/splash.png`). Capacitor lives at the repo root (`capacitor.config.ts`),
+> so install `@capacitor/assets` in the root package (`npm i -D @capacitor/assets`), then run
 > `npx @capacitor/assets generate --ios --assetPath assets` so it regenerates
 > `ios/App/App/Assets.xcassets/AppIcon.appiconset` and `Splash.imageset`. If the tool needs a
-> splash background, use `#fdf6e3`. Then `cd frontend && npm run build` and from root
-> `LANG=en_US.UTF-8 npx cap copy ios`. Confirm the new icon shows in `AppIcon.appiconset`.
+> splash background, use `#fdf6e3`. Then run `npm run build` and from root
+> `npm run cap:sync:ios` (uses the repo's Node 22 wrapper for Capacitor). Confirm the new icon
+> shows in `AppIcon.appiconset`.
 > (You can delete the placeholder generator `scripts/gen-assets.cjs` afterward.)
 
 ### Task B — Wire real In-App Purchase (StoreKit) for "ToDoMon Pro"

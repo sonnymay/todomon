@@ -3,11 +3,27 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-02 (IAP mostly configured; RevenueCat entitlement/key pending)_
+_Last updated: 2026-06-03 (generated iOS app icon assets; Xcode still blocks native sync finish)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-03) Final generated app icon wired into iOS assets ✅
+Used the user-provided generated icon at `assets/icon.png` (did not create new art).
+- Confirmed Capacitor project root is repo root (`capacitor.config.ts` lives at root).
+- Normalized `assets/icon.png` from `1254×1254` to `1024×1024`; it is PNG/RGB with no alpha.
+- Visual check: centered mascot, no text, no rounded corners, safe padding acceptable.
+- Installed `@capacitor/assets` in the root package.
+- Ran `npx @capacitor/assets generate --ios --assetPath assets`.
+- Updated `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png` with the new icon.
+- Generator also refreshed `Splash.imageset` from existing `assets/splash.png`.
+- `npm run build` passed.
+- Direct `npx cap sync ios` fails because shell Node is `20.20.2`; Capacitor 8 requires Node
+  `>=22.0.0`.
+- Repo script `npm run cap:sync:ios` uses bundled Node 22 and completes web asset copy/config, then
+  stops at the known Xcode blocker: `xcodebuild requires Xcode`, active directory is Command Line
+  Tools.
 
 ### (2026-06-02) IAP setup progress — App Store Connect ready, RevenueCat partly configured ⚠️
 App Store Connect IAP `todomon_pro` is created and now `Ready to Submit`:
