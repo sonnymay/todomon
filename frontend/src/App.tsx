@@ -51,13 +51,6 @@ import Settings from './components/Settings'
 import EvolutionCelebration from './components/EvolutionCelebration'
 import Paywall from './components/Paywall'
 
-const ENCOURAGEMENTS = [
-  "You're building amazing habits!",
-  'Keep the streak alive! 🔥',
-  'Your dragon believes in you.',
-  'One quest at a time.',
-]
-
 function isNight(): boolean {
   const h = new Date().getHours()
   return h < 6 || h >= 18
@@ -252,9 +245,14 @@ export default function App() {
     }
   }
 
-  function cheer() {
-    setCelebrate(ENCOURAGEMENTS[Math.floor(Date.now() / 1000) % ENCOURAGEMENTS.length])
+  // The dragon reacts to the *specific* task you finished — the reaction is the prize.
+  // We also fire the feed signal so the completion visibly feeds/grows the dragon
+  // (floating heart + happy bounce), making coins feel secondary.
+  function cheer(taskTitle: string) {
+    const name = creature?.name ?? getStoredPetName()
+    setCelebrate(`${name} loved that you finished “${taskTitle}”!`)
     setTimeout(() => setCelebrate(null), 3500)
+    setFeedSignal((s) => s + 1)
     // Satisfying completion feedback: chime, light haptic, confetti pop.
     sfx.playComplete()
     haptics.tapLight()
@@ -300,7 +298,7 @@ export default function App() {
             : t,
         ),
       )
-      cheer()
+      cheer(task.title)
       onTaskCompleted()
       awardCompletion(task.xp_reward)
       applyLevelUp(prevStage, newStage)
@@ -317,7 +315,7 @@ export default function App() {
           : t,
       ),
     )
-    cheer()
+    cheer(task?.title ?? 'that task')
     onTaskCompleted()
     awardCompletion(task?.xp_reward ?? 20)
     applyLevelUp(prevStage, updated.stage)

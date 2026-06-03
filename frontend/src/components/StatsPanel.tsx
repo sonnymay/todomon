@@ -9,6 +9,7 @@ import {
 
 interface Props {
   creature: Creature
+  petName: string
   hunger: number // real 0-100 hunger (decays over time, +1 per task)
   canFeed: boolean
   feedCost: number
@@ -19,6 +20,14 @@ function mood(hunger: number): string {
   if (hunger >= 60) return '😄 Happy'
   if (hunger >= 20) return '🙂 Content'
   return '😟 Hungry'
+}
+
+// One plain-English sentence that turns the whole app into an obvious loop:
+// task → care → growth. Always nudges the next action.
+function statusLine(name: string, hunger: number): string {
+  if (hunger < 20) return `${name} is hungry. Finish one quick task to feed them. 🍖`
+  if (hunger < 60) return `${name} is doing okay — finish a task to make them happy. 💛`
+  return `${name} is happy and full. Keep finishing tasks to help them grow! 🌟`
 }
 
 function Bar({ value, max, className }: { value: number; max: number; className: string }) {
@@ -33,7 +42,7 @@ function Bar({ value, max, className }: { value: number; max: number; className:
   )
 }
 
-export default function StatsPanel({ creature, hunger, canFeed, feedCost, onFeed }: Props) {
+export default function StatsPanel({ creature, petName, hunger, canFeed, feedCost, onFeed }: Props) {
   // Two simple bars: how hungry the pet is, and how close it is to growing. The level
   // number is intentionally hidden — progress is shown as a bar, not a number.
   const lvl = levelInfo(creature.xp)
@@ -42,6 +51,9 @@ export default function StatsPanel({ creature, hunger, canFeed, feedCost, onFeed
 
   return (
     <div className="relative z-10 mx-3 -mt-6 rounded-3xl bg-[#fdf3da] p-4 shadow-lg">
+      <p className="mb-3 text-center text-sm font-bold leading-snug text-slate-700">
+        {statusLine(petName, hunger)}
+      </p>
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <span className="w-16 shrink-0 text-sm font-bold text-slate-700">🍖 Food</span>

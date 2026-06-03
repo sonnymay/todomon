@@ -252,14 +252,13 @@ export default function CreatureScene({
       {celebration && (
         <div
           className="inline-flex items-start gap-2 rounded-2xl bg-white/90 px-3 py-2 shadow-md backdrop-blur"
-          style={{ position: 'absolute', left: 12, top: 86, zIndex: 20, maxWidth: 240 }}
+          style={{ position: 'absolute', left: 12, top: 86, zIndex: 20, maxWidth: 250 }}
         >
           <span className="text-xl">⭐</span>
           <div className="text-left">
             <p className="text-sm font-extrabold leading-tight text-slate-900">
-              Great job!
+              {celebration}
             </p>
-            <p className="text-xs leading-tight text-slate-600">{celebration}</p>
           </div>
         </div>
       )}

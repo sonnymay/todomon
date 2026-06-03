@@ -124,6 +124,7 @@ export default function Home({
       {creature && (
         <StatsPanel
           creature={creature}
+          petName={creature.name}
           hunger={hunger}
           canFeed={coins >= FEED_COST}
           feedCost={FEED_COST}

@@ -52,6 +52,24 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-02) Love-loop pass — emotional task→care→growth loop ✅
+From a live design review on localhost:5173. Highest-impact "love-loop" slice:
+- **Dragon-specific completion copy:** `cheer()` now sets `"{petName} loved that you
+  finished “{task title}”!"` (was a generic random encouragement). `CreatureScene`
+  speech bubble shows that reaction as the headline; dropped the hardcoded "Great job!".
+- **Completion visibly feeds/grows the dragon:** `cheer()` bumps `feedSignal`, so finishing
+  a task fires the same happy bounce + floating-heart "feed" reaction. Coins stay a small
+  secondary toast — the dragon's reaction is the prize.
+- **Pet-status sentence:** `StatsPanel` now leads with one plain sentence that always nudges
+  the next action, e.g. "Sunny is hungry. Finish one quick task to feed them. 🍖" (varies by
+  hunger band). New `petName` prop, wired from `Home` → `creature.name`.
+- Debug clutter (Dev: Evolve / Starve / Feed) was already gated behind
+  `DEV_NO_AUTH && import.meta.env.DEV` — no change needed.
+- Removed now-unused `ENCOURAGEMENTS` from App.tsx.
+- Verified: `npm run build` + `npm test` (31) pass.
+- NOT done (lower priority, deferred): bottom-nav restructure of Shop/Quests/Trophies/Stats,
+  interactive onboarding, Pro emotional hooks, Dragon Diary. See review notes.
+
 ### (2026-06-02) Task A unblocked — assets/ source folder created ✅
 `assets/icon.png` + `assets/splash.png` (1024²) now exist, copied from the existing
 `frontend/public/icon-1024.png`. Note: the iOS `AppIcon.appiconset` was already populated
