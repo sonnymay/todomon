@@ -68,6 +68,21 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-03) Pre-TestFlight audit + offline mode is now env-driven ✅
+Audit before a TestFlight build:
+- `frontend/.env.example` documents `VITE_REVENUECAT_IOS_API_KEY` ✓.
+- Dev buttons (Evolve/Starve/Feed) are double-gated `DEV_NO_AUTH && import.meta.env.DEV` →
+  never ship in a production build ✓.
+- `console.*` are only warn/error in real error paths (ErrorBoundary, iap.ts) ✓.
+- Dead code (non-blocking): `seedCreature()`/`seedTasks()` in `localGame.ts` are exported but
+  never called (tree-shaken). Left in place.
+- **Change:** `DEV_NO_AUTH` was a hardcoded `true`. Now `import.meta.env.VITE_OFFLINE_MODE !== 'false'`
+  — defaults to offline (true) so this build's behavior is unchanged, but the build mode is now a
+  documented `.env` switch. Set `VITE_OFFLINE_MODE=false` to enable real Supabase auth + server sync
+  (requires backend deployed + keys filled). Added to `vite-env.d.ts` + `.env.example`.
+- Decision: first TestFlight ships OFFLINE (no login, local-only). RevenueCat IAP still works in
+  offline mode. Verified: `npm run build` + `npm test` (31) pass.
+
 ### (2026-06-03) Pro emotional hooks — sell delight, not currency speed ✅
 Reframed ToDoMon Pro around affection/delight + added one real asset-free delight.
 - **New delight:** Pro users get an extra golden star shower on every task completion.

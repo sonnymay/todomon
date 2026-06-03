@@ -1,11 +1,15 @@
 import type { Creature, Task } from '../types'
 import { stageForXp } from './stages'
 
-// ── DEV / TESTING MODE ──────────────────────────────────────────────────────
-// When true, the app skips Supabase auth and runs entirely on in-memory state
-// seeded below. Nothing persists (a refresh resets to the seed). Flip to false
-// to restore real authentication + Supabase-backed data.
-export const DEV_NO_AUTH = true
+// ── OFFLINE MODE ────────────────────────────────────────────────────────────
+// When true, the app skips Supabase auth and runs entirely on local (device)
+// state — no login, no backend. When false, real authentication + Supabase-backed
+// data are used (requires the backend deployed and frontend/.env configured).
+//
+// Driven by VITE_OFFLINE_MODE so the build mode is a deliberate, documented switch
+// rather than a hardcoded flag. Defaults to offline (true) unless explicitly set to
+// 'false', so a standalone TestFlight/demo build needs no backend.
+export const DEV_NO_AUTH = import.meta.env.VITE_OFFLINE_MODE !== 'false'
 
 let counter = 0
 const localId = (): string => `local-${++counter}`
