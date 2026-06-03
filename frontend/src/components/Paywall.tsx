@@ -10,9 +10,9 @@ interface Props {
 }
 
 const BENEFITS = [
-  { emoji: '🎨', text: 'Unlock all premium cosmetics (Cosmic Aura, Royal Frame, Crown)' },
-  { emoji: '🪙', text: '2× coins on every task — forever' },
-  { emoji: '👑', text: 'A Pro dragon, and you support development' },
+  { emoji: '👑', text: 'Dress up your dragon with exclusive accessories — Cosmic Aura, Royal Frame & Crown' },
+  { emoji: '🎉', text: 'A golden star shower every time you finish a task' },
+  { emoji: '💛', text: 'Give your buddy the royal treatment & keep the app growing' },
 ]
 
 export default function Paywall({ isPro, onBuy, onRestore, onClose }: Props) {
@@ -57,6 +57,8 @@ export default function Paywall({ isPro, onBuy, onRestore, onClose }: Props) {
             </div>
           ))}
         </div>
+
+        <p className="mt-2 text-center text-xs text-slate-400">Plus a little perk: 2× coins on every task.</p>
 
         {isPro ? (
           <div className="mt-5 rounded-2xl bg-green-100 py-3 text-sm font-extrabold text-green-700">

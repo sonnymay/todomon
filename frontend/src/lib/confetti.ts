@@ -27,6 +27,24 @@ export function celebrate(origin?: { x: number; y: number }): void {
   })
 }
 
+// Pro-only flourish — a golden shower of stars layered on top of the normal completion
+// pop, so finishing a task feels extra delightful for Pro dragons.
+export function proCelebrate(origin?: { x: number; y: number }): void {
+  if (reducedMotion()) return
+  confetti({
+    particleCount: 28,
+    spread: 80,
+    startVelocity: 38,
+    gravity: 0.85,
+    scalar: 1.2,
+    ticks: 140,
+    shapes: ['star'],
+    origin: origin ?? { x: 0.5, y: 0.65 },
+    colors: ['#fde047', '#fbbf24', '#f59e0b', '#fffbeb'],
+    disableForReducedMotion: true,
+  })
+}
+
 // Bigger, longer celebration — for an evolution.
 export function evolveBurst(): void {
   if (reducedMotion()) return

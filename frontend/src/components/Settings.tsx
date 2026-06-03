@@ -123,7 +123,7 @@ export default function Settings({
             </p>
             {!isPro && (
               <p className="text-xs font-semibold text-white/90">
-                All cosmetics + 2× coins, one-time
+                Exclusive accessories & extra delight, one-time
               </p>
             )}
           </div>

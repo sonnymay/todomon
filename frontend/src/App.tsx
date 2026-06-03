@@ -43,7 +43,7 @@ import { useHunger } from './lib/useHunger'
 import { useStreak } from './lib/useStreak'
 import * as sfx from './lib/sfx'
 import * as haptics from './lib/haptics'
-import { celebrate as confettiCelebrate, evolveBurst } from './lib/confetti'
+import { celebrate as confettiCelebrate, evolveBurst, proCelebrate } from './lib/confetti'
 import Auth from './components/Auth'
 import Home from './components/Home'
 import Onboarding from './components/Onboarding'
@@ -263,6 +263,8 @@ export default function App() {
     sfx.playComplete()
     haptics.tapLight()
     confettiCelebrate()
+    // Pro delight: an extra golden star shower on every completion.
+    if (pro) proCelebrate()
   }
 
   // Engagement rewards for a completed task: coins (by difficulty + streak), a rare lucky

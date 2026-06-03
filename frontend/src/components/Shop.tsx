@@ -77,7 +77,7 @@ export default function Shop({ game, isPro, onOpenPaywall, onClose }: Props) {
           <div className="flex-1">
             <p className="text-sm font-black text-white">Unlock ToDoMon Pro</p>
             <p className="text-xs font-semibold text-white/90">
-              All premium cosmetics + 2× coins
+              Exclusive accessories & a golden celebration
             </p>
           </div>
           <span className="text-sm font-black text-white">→</span>

@@ -52,6 +52,23 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-03) Pro emotional hooks — sell delight, not currency speed ✅
+Reframed ToDoMon Pro around affection/delight + added one real asset-free delight.
+- **New delight:** Pro users get an extra golden star shower on every task completion.
+  `lib/confetti.ts` → new `proCelebrate()` (star shapes, gold palette, respects reduced-motion);
+  fired in `App.tsx` `cheer()` only when `pro`.
+- **Copy reframe (no behavior change):**
+  - `Paywall.tsx` BENEFITS now lead with exclusive accessories, the golden celebration, and
+    "give your buddy the royal treatment & keep the app growing". 2× coins demoted to a small
+    grey footnote ("Plus a little perk: 2× coins on every task.").
+  - `Shop.tsx` upsell subline: "Exclusive accessories & a golden celebration" (was "All premium
+    cosmetics + 2× coins").
+  - `Settings.tsx` upsell subline: "Exclusive accessories & extra delight, one-time".
+- **Decision:** kept the 2× coins mechanic (Pro buyers keep the perk) but demoted it from the
+  headline — recommended over removing it. No new art/systems; existing Pro cosmetics
+  (Cosmic Aura / Royal Frame / Crown) unchanged.
+- Verified: `npm run build` + `npm test` (31) pass.
+
 ### (2026-06-03) Bottom-nav Home + Dragon Diary preview ✅
 Decluttered Home and turned stats into story.
 - **Bottom nav:** Shop/Quests/Trophies/Stats moved off the inline action row into a fixed
