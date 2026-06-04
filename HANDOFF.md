@@ -3,11 +3,22 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-04 (offline iOS TestFlight internal testing enabled)_
+_Last updated: 2026-06-04 (dev buttons removed from Home preview)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-04) Dev shortcut buttons removed from app UI ✅
+- Removed the visible debug shortcut row from `frontend/src/components/Home.tsx`.
+- Removed the `onDevEvolve`, `onDevFeed`, and `onDevStarve` props from `Home`.
+- Stopped passing `Dev: Evolve`, `Starve -20`, and `Feed +20` handlers from `frontend/src/App.tsx`.
+- Removed the now-unused `handleDevEvolve` helper and `STAGE_THRESHOLDS` import from `App.tsx`.
+- Verification:
+  - `npm run build` passed.
+  - `npm test -- --run` passed: 31 tests.
+  - Local dev preview at `http://127.0.0.1:5173/` was refreshed and no longer contains
+    `Dev: Evolve`, `Starve`, or `Feed +20`.
 
 ### (2026-06-04) Offline iOS TestFlight internal testing enabled ✅
 - App Store Connect/TestFlight build `1` for version `1.0` is uploaded and available.

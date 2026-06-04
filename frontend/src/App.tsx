@@ -31,7 +31,6 @@ import type { Creature, Profile, Stage, Task } from './types'
 import {
   STAGE_LABEL,
   STAGE_ORDER,
-  STAGE_THRESHOLDS,
   stageForXp,
   difficultyForXp,
 } from './lib/stages'
@@ -420,17 +419,6 @@ export default function App() {
     window.location.reload()
   }
 
-  // Dev-only: jump the creature to the next evolution stage to preview each video.
-  function handleDevEvolve() {
-    if (!creature) return
-    const idx = STAGE_ORDER.indexOf(creature.stage)
-    const next = STAGE_ORDER[(idx + 1) % STAGE_ORDER.length]
-    const newXp = STAGE_THRESHOLDS[next]
-    const prevStage = creature.stage
-    setCreature({ ...creature, xp: newXp, stage: next })
-    applyLevelUp(prevStage, next)
-  }
-
   if (!authReady) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-amber-300 text-slate-700">
@@ -487,19 +475,6 @@ export default function App() {
         onUncomplete={handleUncomplete}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        onDevEvolve={
-          DEV_NO_AUTH && import.meta.env.DEV ? handleDevEvolve : undefined
-        }
-        onDevFeed={
-          DEV_NO_AUTH && import.meta.env.DEV
-            ? () => devAdjustHunger(20)
-            : undefined
-        }
-        onDevStarve={
-          DEV_NO_AUTH && import.meta.env.DEV
-            ? () => devAdjustHunger(-20)
-            : undefined
-        }
       />
       {settingsOpen && creature && (
         <Settings

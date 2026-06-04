@@ -39,9 +39,6 @@ interface Props {
   onUncomplete: (taskId: string) => Promise<void>
   onEdit: (taskId: string, title: string, notes: string) => Promise<void>
   onDelete: (taskId: string) => Promise<void>
-  onDevEvolve?: () => void
-  onDevFeed?: () => void
-  onDevStarve?: () => void
 }
 
 type SheetName = 'shop' | 'quests' | 'trophies' | 'stats' | null
@@ -71,9 +68,6 @@ export default function Home({
   onUncomplete,
   onEdit,
   onDelete,
-  onDevEvolve,
-  onDevFeed,
-  onDevStarve,
 }: Props) {
   const [sheet, setSheet] = useState<SheetName>(null)
 
@@ -139,35 +133,6 @@ export default function Home({
           petName={creature.name}
           onOpen={() => setSheet('stats')}
         />
-      )}
-
-      {(onDevEvolve || onDevFeed || onDevStarve) && (
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {onDevEvolve && (
-            <button
-              onClick={onDevEvolve}
-              className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800"
-            >
-              🧪 Dev: Evolve →
-            </button>
-          )}
-          {onDevStarve && (
-            <button
-              onClick={onDevStarve}
-              className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800"
-            >
-              😋 Starve −20
-            </button>
-          )}
-          {onDevFeed && (
-            <button
-              onClick={onDevFeed}
-              className="rounded-full bg-slate-800/80 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800"
-            >
-              🍖 Feed +20
-            </button>
-          )}
-        </div>
       )}
 
       <div className="flex-1 pt-5 pb-[calc(6rem+env(safe-area-inset-bottom))]">
