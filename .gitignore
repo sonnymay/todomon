@@ -36,3 +36,6 @@ backend/.env
 !.vscode/extensions.json
 .idea/
 *.sw?
+
+# Local signing — contains real Apple Team ID, never commit
+ios/ExportOptions.local.plist
