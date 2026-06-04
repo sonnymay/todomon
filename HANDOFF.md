@@ -3,11 +3,30 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-03 (generated iOS app icon assets; Xcode still blocks native sync finish)_
+_Last updated: 2026-06-04 (offline iOS TestFlight upload succeeded)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-04) Offline iOS TestFlight upload succeeded ✅
+- Xcode is installed and selected: `Xcode 26.5` / `/Applications/Xcode.app/Contents/Developer`.
+- Team ID is configured on the App target: `57U5D693VS`.
+- Valid signing identities exist for Apple Development and Apple Distribution.
+- `npm run cap:sync:ios` succeeds and resolves RevenueCat pods.
+- Offline mode remains unset/blank; `VITE_REVENUECAT_IOS_API_KEY` is still missing, so purchases
+  will not work until the RevenueCat key is added.
+- Archive/export succeeded locally, producing `build/export/App.ipa`.
+- App Store Connect upload first failed with error `90474`: iPad multitasking requires all
+  orientations unless app requires full screen.
+- Added `UIRequiresFullScreen = true` to `ios/App/App/Info.plist` so ToDoMon can stay portrait-only
+  and pass App Store orientation validation.
+- Rebuilt, re-exported, and uploaded the offline build successfully with
+  `xcodebuild -exportArchive ... destination=upload`; Apple reported `Upload succeeded` and the
+  package is processing in App Store Connect/TestFlight.
+- Generated iOS app icon is in `AppIcon.appiconset` and was compiled into the uploaded IPA.
+- Expo/EAS is not needed for this submission path; ToDoMon is a Capacitor app submitted through
+  Xcode/App Store Connect.
 
 ### (2026-06-03) Final generated app icon wired into iOS assets ✅
 Used the user-provided generated icon at `assets/icon.png` (did not create new art).

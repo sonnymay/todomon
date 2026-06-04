@@ -8,6 +8,7 @@ npm-debug.log*
 
 # Root tooling
 node_modules/
+build/
 
 # Frontend
 frontend/node_modules/
