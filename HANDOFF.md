@@ -3,11 +3,23 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-04 (dev buttons removed from Home preview)_
+_Last updated: 2026-06-04 (App Store screenshots replaced)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-04) App Store Connect screenshots replaced ✅
+- Replaced the bad iPhone 6.5" screenshot on App Store Connect version `1.0`.
+- Uploaded new iPhone screenshot:
+  `app-store-screenshots/todomon-iphone-65-better.png` (`1284×2778`).
+- Uploaded new iPad 13" screenshot:
+  `app-store-screenshots/todomon-ipad-13-better.png` (`2048×2732`).
+- App Store Connect now shows:
+  - iPhone tab: `Screenshot todomon-iphone-65-better.png`, `1 of 10 Screenshots`.
+  - iPad tab: `Screenshot todomon-ipad-13-better.png`, `1 of 10 Screenshots`.
+- The App Store Connect `Save` button remained disabled after upload, which indicates the media
+  upload was accepted/saved by the media uploader flow.
 
 ### (2026-06-04) Dev shortcut buttons removed from app UI ✅
 - Removed the visible debug shortcut row from `frontend/src/components/Home.tsx`.
