@@ -3,11 +3,22 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-04 (offline iOS TestFlight upload succeeded)_
+_Last updated: 2026-06-04 (offline iOS TestFlight internal testing enabled)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-04) Offline iOS TestFlight internal testing enabled ✅
+- App Store Connect/TestFlight build `1` for version `1.0` is uploaded and available.
+- Export compliance was completed in App Store Connect:
+  - selected `None of the algorithms mentioned above` because ToDoMon does not implement custom
+    or standard encryption algorithms itself; it only uses platform/SDK networking.
+  - build status changed from `Missing Compliance` to `Ready to Submit`.
+- Created internal TestFlight group `Internal Testers`.
+- Automatic distribution is enabled for the group.
+- Added App Store Connect user/tester `thesan_555@hotmail.com` (`Santipap May`, Internal).
+- Group now shows `1 Tester` and `1 Build`; tester status is `Invited`.
 
 ### (2026-06-04) Offline iOS TestFlight upload succeeded ✅
 - Xcode is installed and selected: `Xcode 26.5` / `/Applications/Xcode.app/Contents/Developer`.
