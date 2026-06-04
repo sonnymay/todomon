@@ -3,11 +3,30 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-04 (App Store screenshots replaced)_
+_Last updated: 2026-06-04 (App Store submission staged, awaiting final submit)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-04) App Store submission staged; final submit not clicked ⚠️
+- Cleared the remaining App Store Connect blockers:
+  - Added Privacy Policy URL:
+    `https://raw.githubusercontent.com/sonnymay/todomon/main/frontend/public/privacy.html`.
+  - Completed App Privacy as `Data Not Collected` and published the privacy response.
+  - Completed Age Ratings; calculated rating is `4+`.
+  - Set app pricing to `$0.00` in all 175 countries/regions.
+  - Set availability to all 175 countries/regions after release.
+- Clicked `Add for Review`; version `1.0` now shows `Ready for Review`.
+- App Store Connect has a draft submission open:
+  - dialog title: `Draft Submission Started by Santipap May Today at 4:44 PM`
+  - item status: `Item Ready to Submit`
+  - final button visible: `Submit for Review`
+- **Stopped before final `Submit for Review` click** because that is the actual App Review
+  submission action.
+- Important caveat: current App Review notes still say `RevenueCat SDK key is not configured in
+  this offline TestFlight build`; if `todomon_pro` must work in the submitted binary, do not submit
+  this build until RevenueCat key is configured and a new build is uploaded.
 
 ### (2026-06-04) App Store Connect screenshots replaced ✅
 - Replaced the bad iPhone 6.5" screenshot on App Store Connect version `1.0`.
