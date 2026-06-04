@@ -68,6 +68,17 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-04) iOS signing configured in-project ✅ (cert still needs a private key)
+- Team ID `57U5D693VS` (paid Individual, "Santipap May"), read from keychain/Xcode cache.
+- `project.pbxproj`: `DEVELOPMENT_TEAM=57U5D693VS` + automatic signing on App target Debug+Release
+  (commit `854db51`). `ios/ExportOptions.local.plist` written with the real team id and git-ignored.
+- ⚠️ Remaining blocker: `security find-identity -p codesigning -v` = 0 valid identities. The
+  Apple Distribution + Development certs EXIST in the keychain but have NO matching private key,
+  so they can't sign. Fix: point xcode-select at full Xcode, then either let
+  `xcodebuild … archive -allowProvisioningUpdates` mint a fresh cert+key (now that team+automatic
+  signing are set), or do one Product → Archive in Xcode to regenerate the identity. After that,
+  find-identity shows 1+ valid and Codex can run the archive/export headlessly.
+
 ### (2026-06-03) iOS archive/export tooling for TestFlight ✅
 - Pushed pending commit `4d9320c` (env-driven offline mode); remote main now current.
 - Added `ios/ExportOptions.plist` (App Store export, automatic signing). Replace
