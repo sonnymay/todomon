@@ -3,11 +3,24 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-04 (App Store submission staged, awaiting final submit)_
+_Last updated: 2026-06-04 (App Store submission sent; waiting for review)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-04) App Store submission sent ✅
+- User clicked the final `Submit for Review` button after Codex staged the draft submission.
+- Verified in App Store Connect on the iOS version page:
+  - sidebar/version status: `1.0 Waiting for Review`.
+  - page message: some fields can still be edited while waiting for review; a new build requires
+    removing this version from review.
+  - no `Unable to Add for Review` blocker banner is present.
+- Current App Review notes still mention this caveat:
+  `In-app purchase UI exists, but RevenueCat SDK key is not configured in this offline TestFlight build.`
+  If Apple rejects because `todomon_pro` cannot be purchased/restored, the fix path is: add
+  `VITE_REVENUECAT_IOS_API_KEY`, rebuild/archive/upload a new build, attach it to version `1.0`,
+  and resubmit.
 
 ### (2026-06-04) App Store submission staged; final submit not clicked ⚠️
 - Cleared the remaining App Store Connect blockers:

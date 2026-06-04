@@ -9,6 +9,7 @@ npm-debug.log*
 # Root tooling
 node_modules/
 build/
+app-store-screenshots/
 
 # Frontend
 frontend/node_modules/
