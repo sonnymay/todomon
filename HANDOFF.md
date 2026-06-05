@@ -3,11 +3,22 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-04 (App Store submission sent; waiting for review)_
+_Last updated: 2026-06-05 (App Store submission still waiting for review)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-05) App Store review status re-verified ✅
+- Rechecked App Store Connect after final `Submit for Review`.
+- Verified current iOS version state:
+  - sidebar/version status: `1.0 Waiting for Review`.
+  - page heading: `iOS App Version 1.0`.
+  - no `Unable to Add for Review` blocker banner is present.
+- Current actionable next step is waiting for Apple to move status to `In Review`, `Approved`, or
+  rejection/metadata feedback.
+- Known risk remains unchanged: review notes say RevenueCat SDK key is not configured in this
+  offline TestFlight build, so Apple may reject if they test `todomon_pro`.
 
 ### (2026-06-04) App Store submission sent ✅
 - User clicked the final `Submit for Review` button after Codex staged the draft submission.
