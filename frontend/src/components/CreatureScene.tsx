@@ -25,7 +25,10 @@ interface Props {
 // Stage media are full-scene assets. Idle uses looping MP4; sleep uses a static
 // PNG when present, with the idle video still available as fallback. The pet is the
 // star — keep the scene tall so it dominates the screen.
-const SCENE_HEIGHT = 500
+// Responsive scene height — clamped so content below stays readable on every device.
+const SCENE_HEIGHT = typeof window !== 'undefined'
+  ? Math.min(400, Math.max(280, Math.round(window.innerHeight * 0.37)))
+  : 380
 const HUNGRY_THRESHOLD = 20
 
 export default function CreatureScene({
