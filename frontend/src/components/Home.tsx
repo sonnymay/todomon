@@ -135,7 +135,7 @@ export default function Home({
         />
       )}
 
-      <div className="flex-1 pt-5 pb-[calc(6rem+env(safe-area-inset-bottom))]">
+      <div className="flex-1 pt-3 pb-[calc(5rem+env(safe-area-inset-bottom))]">
         {error && (
           <p className="mx-3 mb-3 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700">
             {error}
@@ -166,7 +166,7 @@ export default function Home({
 
       {/* bottom nav — Shop / Quests / Trophies / Stats live here so Home stays focused on
           the dragon, pet status, and Today's tasks. Sheets (z-50) cover it when open. */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md justify-around gap-1 border-t border-black/5 bg-[#fdf6e3]/95 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur">
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md justify-around gap-1 border-t border-black/5 bg-[#fdf6e3]/95 px-2 pt-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur">
         {actions.map((a) => (
           <button
             key={a.key}
