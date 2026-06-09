@@ -27,6 +27,9 @@ interface OnboardingProps {
   onRename: (name: string) => void
   onAdd: (title: string, xpReward: number, notes?: string) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
+  // Called once when onboarding completes — App uses it to ask for notification
+  // permission at the moment of max attachment (right after the first reaction).
+  onFinish?: () => void
 }
 
 export default function Onboarding({
@@ -35,6 +38,7 @@ export default function Onboarding({
   onRename,
   onAdd,
   onComplete,
+  onFinish,
 }: OnboardingProps) {
   const [dismissed, setDismissed] = useState(alreadyOnboarded)
   const [step, setStep] = useState<OnboardingStep>('meet')
@@ -68,6 +72,7 @@ export default function Onboarding({
       // storage unavailable — at least don't show it again this session
     }
     setDismissed(true)
+    onFinish?.()
   }
 
   function handleMeetContinue() {

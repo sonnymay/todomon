@@ -42,6 +42,12 @@ import { useHunger } from './lib/useHunger'
 import { useStreak } from './lib/useStreak'
 import * as sfx from './lib/sfx'
 import * as haptics from './lib/haptics'
+import { App as CapApp } from '@capacitor/app'
+import {
+  clearReminders,
+  requestPermission as requestReminderPermission,
+  scheduleReminders,
+} from './lib/notifications'
 import { celebrate as confettiCelebrate, evolveBurst, proCelebrate } from './lib/confetti'
 import Auth from './components/Auth'
 import Home from './components/Home'
@@ -90,12 +96,25 @@ export default function App() {
 
   // Hunger is real: decays over time, +1 per task (see useHunger).
   const { hunger, onTaskCompleted, onTaskUndone, devAdjustHunger } = useHunger(hungerSeed)
-  // Daily completion streak (persisted; see useStreak).
-  const { streak, registerCompletion: registerStreak } = useStreak(streakSeed)
 
   // Engagement economy: coins, quests, achievements, cosmetics, stats (persisted).
+  // Created before the streak so the freeze rescue below can spend held freezes.
   const today = new Date().toDateString()
   const game = useGameStore(today)
+
+  // Daily completion streak (persisted; see useStreak). If it lapsed but the user holds
+  // Streak Freezes 🧊, they're spent automatically and the streak survives.
+  const { streak, registerCompletion: registerStreak } = useStreak(streakSeed, {
+    available: game.state.streakFreezes,
+    consume: (used, kept) => {
+      game.consumeStreakFreezes(used)
+      game.noteMemory({
+        kind: 'streak',
+        emoji: '🧊',
+        text: `Used a Streak Freeze — ${getStoredPetName()} kept your ${kept}-day streak safe!`,
+      })
+    },
+  })
 
   // ToDoMon Pro entitlement (one-time IAP). Mocked on web; StoreKit on device (see lib/iap).
   const [pro, setPro] = useState(iapIsPro)
@@ -201,6 +220,32 @@ export default function App() {
       setProfile(null)
     }
   }, [session, loadData])
+
+  // "Dragon misses you" reminders: schedule when the app goes to the background, cancel
+  // the moment it comes back — active users never see them.
+  useEffect(() => {
+    const sub = CapApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) void clearReminders()
+      else void scheduleReminders(getStoredPetName())
+    })
+    void clearReminders()
+    return () => {
+      void sub.then((s) => s.remove())
+    }
+  }, [])
+
+  // Ask for notification permission once the user is attached: new users at the end of
+  // onboarding (see <Onboarding onFinish>), existing users on launch. iOS prompts once.
+  useEffect(() => {
+    if (!authReady) return
+    try {
+      if (localStorage.getItem('todomon_onboarded_v1') === '1') {
+        void requestReminderPermission()
+      }
+    } catch {
+      // storage unavailable — skip
+    }
+  }, [authReady])
 
   // Daily "missed you" greeting — once per calendar day for returning users.
   useEffect(() => {
@@ -448,6 +493,7 @@ export default function App() {
           onRename={handleRename}
           onAdd={handleAdd}
           onComplete={handleComplete}
+          onFinish={() => void requestReminderPermission()}
         />
       )}
       <Home

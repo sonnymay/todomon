@@ -5,6 +5,7 @@ import { DIFFICULTY_XP, type Difficulty } from '../lib/stages'
 interface Props {
   tasks: Task[]
   streak: number
+  freezes: number // held Streak Freezes 🧊 — shown beside the flame when > 0
   onAdd: (title: string, xpReward: number, notes?: string) => Promise<void>
   onComplete: (taskId: string) => Promise<void>
   onUncomplete: (taskId: string) => Promise<void>
@@ -21,6 +22,7 @@ const DIFFICULTIES: { key: Difficulty; label: string; emoji: string }[] = [
 export default function TaskList({
   tasks,
   streak,
+  freezes,
   onAdd,
   onComplete,
   onUncomplete,
@@ -148,6 +150,11 @@ export default function TaskList({
                 day{streak === 1 ? '' : 's'}
               </span>
             </span>
+            {freezes > 0 && (
+              <span className="ml-1 text-[11px] font-extrabold text-sky-600">
+                🧊×{freezes}
+              </span>
+            )}
           </span>
         )}
       </div>

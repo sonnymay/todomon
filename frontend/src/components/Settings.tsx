@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { isSoundOn, setSoundOn } from '../lib/sfx'
 import { isHapticsOn, setHapticsOn } from '../lib/haptics'
+import { isRemindersOn, setRemindersOn } from '../lib/notifications'
 
 const APP_VERSION = '1.0.0'
 const MAX_NAME = 16
@@ -56,6 +57,7 @@ export default function Settings({
 }: Props) {
   const [sound, setSound] = useState(isSoundOn)
   const [haptics, setHaptics] = useState(isHapticsOn)
+  const [reminders, setReminders] = useState(isRemindersOn)
   const [name, setName] = useState(petName)
   const [confirmReset, setConfirmReset] = useState(false)
 
@@ -146,6 +148,14 @@ export default function Settings({
             onChange={(next) => {
               setHapticsOn(next)
               setHaptics(next)
+            }}
+          />
+          <Toggle
+            label="🔔 Dragon reminders"
+            on={reminders}
+            onChange={(next) => {
+              setRemindersOn(next)
+              setReminders(next)
             }}
           />
         </div>

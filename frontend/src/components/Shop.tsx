@@ -1,5 +1,6 @@
 import Sheet from './Sheet'
 import { COSMETICS, type Cosmetic } from '../lib/cosmetics'
+import { STREAK_FREEZE_COST, MAX_STREAK_FREEZES } from '../lib/economy'
 import type { UseGameStore } from '../lib/gameStore'
 import type { CosmeticKind } from '../lib/gameTypes'
 
@@ -17,7 +18,7 @@ const SECTIONS: { kind: CosmeticKind; title: string }[] = [
 ]
 
 export default function Shop({ game, isPro, onOpenPaywall, onClose }: Props) {
-  const { coins, owned, equipped } = game.state
+  const { coins, owned, equipped, streakFreezes } = game.state
 
   function Item({ c }: { c: Cosmetic }) {
     const isOwned = owned.includes(c.id)
@@ -87,6 +88,36 @@ export default function Shop({ game, isPro, onOpenPaywall, onClose }: Props) {
         Earn coins by completing tasks. Dress up your dragon!
       </p>
       <div className="space-y-4 pb-2">
+        {/* Streak Freeze — care item, not a cosmetic: covers one missed day automatically */}
+        <div>
+          <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
+            Care
+          </h3>
+          <div className="flex items-center gap-3 rounded-2xl bg-white p-3">
+            <span className="text-2xl">🧊</span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold text-slate-800">Streak Freeze</p>
+              <p className="text-xs text-slate-500">
+                Covers one missed day — your 🔥 streak survives.
+              </p>
+              <p className="text-xs font-semibold text-amber-600">
+                🪙 {STREAK_FREEZE_COST}
+                {streakFreezes > 0 && (
+                  <span className="ml-2 text-sky-600">
+                    Held: {streakFreezes}/{MAX_STREAK_FREEZES}
+                  </span>
+                )}
+              </p>
+            </div>
+            <button
+              onClick={() => game.buyStreakFreeze()}
+              disabled={coins < STREAK_FREEZE_COST || streakFreezes >= MAX_STREAK_FREEZES}
+              className="shrink-0 rounded-xl bg-orange-500 px-3 py-1.5 text-xs font-extrabold text-white active:scale-95 disabled:opacity-40"
+            >
+              {streakFreezes >= MAX_STREAK_FREEZES ? 'Max ✓' : 'Buy'}
+            </button>
+          </div>
+        </div>
         {SECTIONS.map((sec) => (
           <div key={sec.kind}>
             <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { currentStreak, registerCompletion, type StreakState } from './useStreak'
+import {
+  currentStreak,
+  reconcileFreeze,
+  registerCompletion,
+  type StreakState,
+} from './useStreak'
 
 const DAY = 24 * 60 * 60 * 1000
 // A fixed reference "now" (avoids real Date.now in tests). Noon keeps day math off DST edges.
@@ -45,5 +50,49 @@ describe('currentStreak (display)', () => {
 
   it('lapses to 0 once two days have passed', () => {
     expect(currentStreak({ count: 5, lastDate: key(NOW - 2 * DAY) }, NOW)).toBe(0)
+  })
+})
+
+describe('reconcileFreeze (streak-freeze rescue)', () => {
+  it('does nothing while the streak is alive', () => {
+    const state: StreakState = { count: 5, lastDate: key(NOW - DAY) }
+    expect(reconcileFreeze(state, NOW, 2)).toEqual({ state, used: 0 })
+  })
+
+  it('does nothing with no freezes held', () => {
+    const state: StreakState = { count: 5, lastDate: key(NOW - 2 * DAY) }
+    expect(reconcileFreeze(state, NOW, 0)).toEqual({ state, used: 0 })
+  })
+
+  it('does nothing with no streak history', () => {
+    const state: StreakState = { count: 0, lastDate: null }
+    expect(reconcileFreeze(state, NOW, 2)).toEqual({ state, used: 0 })
+  })
+
+  it('spends one freeze to cover a single missed day', () => {
+    const state: StreakState = { count: 5, lastDate: key(NOW - 2 * DAY) }
+    const res = reconcileFreeze(state, NOW, 2)
+    expect(res.used).toBe(1)
+    expect(res.state).toEqual({ count: 5, lastDate: key(NOW - DAY) })
+    // The repaired state reads as a live streak again.
+    expect(currentStreak(res.state, NOW)).toBe(5)
+  })
+
+  it('spends two freezes to cover two missed days', () => {
+    const state: StreakState = { count: 9, lastDate: key(NOW - 3 * DAY) }
+    const res = reconcileFreeze(state, NOW, 2)
+    expect(res.used).toBe(2)
+    expect(currentStreak(res.state, NOW)).toBe(9)
+  })
+
+  it('does not partially cover a gap bigger than the freezes held', () => {
+    const state: StreakState = { count: 9, lastDate: key(NOW - 4 * DAY) }
+    expect(reconcileFreeze(state, NOW, 2)).toEqual({ state, used: 0 })
+  })
+
+  it('a rescued streak continues normally on the next completion', () => {
+    const lapsed: StreakState = { count: 5, lastDate: key(NOW - 2 * DAY) }
+    const rescued = reconcileFreeze(lapsed, NOW, 1).state
+    expect(registerCompletion(rescued, NOW)).toEqual({ count: 6, lastDate: key(NOW) })
   })
 })

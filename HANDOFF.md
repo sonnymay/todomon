@@ -164,6 +164,26 @@ Created Apple Developer bundle ID and App Store Connect app record:
 
 IAP creation has since progressed; see the IAP setup note above.
 
+### (2026-06-09) "Dragon that waits for you" — local notifications + Streak Freeze ✅ (1.1 slice)
+Retention slice from the love-the-app roadmap (full prioritized list in the plan; next up:
+Diary journal → mood states → share).
+- **Dragon-misses-you reminders** (`frontend/src/lib/notifications.ts`): 2 local notifications
+  in the pet's voice (+24h "misses you", +72h "really hungry"), scheduled on `appStateChange`
+  background, cancelled on resume — active users never see them. Permission asked at onboarding
+  finish (new `onFinish` prop) or on launch for already-onboarded users. Settings toggle
+  "🔔 Dragon reminders" (`todomon_reminders_v1`, default on; off also cancels pending).
+- **Streak Freeze 🧊**: the unused `streakFreezes` field is now live. Shop "Care" section sells
+  freezes (🪙60, cap 2 — `STREAK_FREEZE_COST`/`MAX_STREAK_FREEZES` in economy.ts). On mount,
+  `reconcileFreeze` (pure, in useStreak.ts) auto-spends freezes to cover missed days; the rescue
+  writes a 🧊 Dragon Diary memory ("kept your N-day streak safe"). 🧊×n badge beside the 🔥
+  flame in TaskList. Offline mode only (real mode streak is server-authoritative).
+- **Plugin layout gotcha fixed**: native Capacitor plugins must be in the ROOT package.json
+  (the Podfile points at root `node_modules`) — `@capacitor/haptics` was only in frontend/, so
+  haptics was silently a no-op on device. Now root has app+haptics+local-notifications; sync
+  reports 4 plugins. (`pod install` needs `LANG=en_US.UTF-8`.)
+- Verified: build ✓, 40/40 tests (+9: freeze reconcile, reminder copy), browser run-through of
+  rescue → diary → shop buy/cap → settings toggle ✓. Ships in a 1.1 build (1.0 is in review).
+
 ### (2026-06-04) iOS signing configured in-project ✅ (cert still needs a private key)
 - Team ID `57U5D693VS` (paid Individual, "Santipap May"), read from keychain/Xcode cache.
 - `project.pbxproj`: `DEVELOPMENT_TEAM=57U5D693VS` + automatic signing on App target Debug+Release
