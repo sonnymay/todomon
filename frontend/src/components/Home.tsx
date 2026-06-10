@@ -86,7 +86,7 @@ export default function Home({
   ]
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col overflow-hidden bg-[#fdf6e3] shadow-2xl sm:my-4 sm:min-h-[calc(100vh-2rem)] sm:rounded-[2rem]">
+    <div className="mx-auto flex min-h-screen w-full max-w-[100vw] flex-col overflow-hidden bg-[#fdf6e3] shadow-2xl sm:my-4 sm:min-h-[calc(100vh-2rem)] sm:max-w-md sm:rounded-[2rem]">
       {creature ? (
         <CreatureScene
           creature={creature}
@@ -166,15 +166,15 @@ export default function Home({
 
       {/* bottom nav — Shop / Quests / Trophies / Stats live here so Home stays focused on
           the dragon, pet status, and Today's tasks. Sheets (z-50) cover it when open. */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto flex w-full max-w-md justify-around gap-1 border-t border-black/5 bg-[#fdf6e3]/95 px-2 pt-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur">
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto grid w-full max-w-[100vw] grid-cols-4 gap-1 border-t border-black/5 bg-[#fdf6e3]/95 px-1 pt-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur sm:max-w-md">
         {actions.map((a) => (
           <button
             key={a.key}
             onClick={() => setSheet(a.key)}
-            className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1.5 text-slate-600 transition active:scale-95"
+            className="relative flex min-w-0 flex-col items-center gap-0.5 rounded-2xl py-1.5 text-slate-600 transition active:scale-95"
           >
             <span className="text-xl">{a.emoji}</span>
-            <span className="text-[10px] font-bold">{a.label}</span>
+            <span className="max-w-full truncate text-[10px] font-bold">{a.label}</span>
             {a.dot && (
               <span className="absolute right-3 top-0.5 h-2.5 w-2.5 rounded-full bg-red-500" />
             )}

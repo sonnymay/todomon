@@ -114,18 +114,18 @@ export default function TaskList({
   )
 
   return (
-    <section className="px-3">
-      <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-lg font-extrabold text-slate-800">
+    <section className="min-w-0 px-2">
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <h3 className="min-w-0 flex items-center gap-2 text-lg font-extrabold text-slate-800">
           🌞 Today
         </h3>
-        <span className="text-sm font-semibold text-slate-500">
-          <span className="text-green-600">{completedCount}</span> / {tasks.length} done
+        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-slate-500">
+          <span className="text-green-600">{completedCount}</span>/{tasks.length}
         </span>
       </div>
 
       {/* big satisfying "done today" counter */}
-      <div className="mt-3 flex items-center gap-3 rounded-3xl bg-green-100 px-5 py-3">
+      <div className="mt-3 flex min-w-0 items-center gap-3 rounded-3xl bg-green-100 px-4 py-3">
         <span
           className={`text-5xl font-black leading-none text-green-600 ${
             pop ? 'count-pop' : ''
@@ -153,20 +153,19 @@ export default function TaskList({
       </div>
 
       <form onSubmit={submit} className="mt-3 space-y-2">
-        <div className="flex gap-2">
+        <div className="flex min-w-0 gap-2">
           <input
             value={title}
-            autoFocus
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Add a task…"
-            className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
+            className="w-0 min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
           />
           <button
             type="submit"
             disabled={adding}
-            className="shrink-0 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
+            className="shrink-0 rounded-2xl bg-orange-500 px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
           >
-            Add ✨
+            Add
           </button>
         </div>
         <input

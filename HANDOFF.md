@@ -3,11 +3,35 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-05 (App Store submission still waiting for review)_
+_Last updated: 2026-06-09 (build 1.0 (2) layout fix ready for archive/upload)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-09) App Review crowded UI rejection fix verified on iPhone 17 Pro Max ✅
+- Apple rejected build `1.0 (1)` for a crowded UI on iPhone 17 Pro Max.
+- Pulled latest `main` and confirmed the prior rejection fixes were present:
+  - `CreatureScene.tsx` uses responsive/clamped scene height.
+  - `Home.tsx` had reduced vertical spacing.
+- Simulator verification found the prior fixes were not enough: the iPhone 17 Pro Max screen still
+  clipped the right edge of several controls (`Feed`, mood, next-evolution badge, task count,
+  `Add`, and bottom nav).
+- Added a second minimal layout hardening pass:
+  - `StatsPanel.tsx`: tighter mobile spacing, shrinkable bars, shorter mobile feed/mood controls.
+  - `TaskList.tsx`: removed launch auto-focus, shorter task count, shrinkable Add row.
+  - `Home.tsx`: mobile shell/nav capped at `100vw`, bottom nav changed to a 4-column grid.
+  - `ios/App/App.xcodeproj/project.pbxproj`: bumped build number to `2`; marketing version stays
+    `1.0`.
+- Verification:
+  - `npm run build` passed.
+  - `npm --prefix frontend test -- --run` passed: 31 tests.
+  - `npm run cap:sync:ios` passed and resolved RevenueCat pods.
+  - Debug simulator build passed on iPhone 17 Pro Max (`iOS 26.5`).
+  - Visual verification screenshot: `/tmp/todomon-home-fixed-iphone17-promax.png`; no right-edge
+    clipping, no launch keyboard, bottom nav fully visible.
+- Next step: archive/upload build `1.0 (2)` through Xcode, then attach build `2` to the rejected
+  App Store Connect version and resubmit.
 
 ### (2026-06-05) App Store review status re-verified ✅
 - Rechecked App Store Connect after final `Submit for Review`.
