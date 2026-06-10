@@ -3,11 +3,20 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-09 (build 1.0 (2) layout fix ready for archive/upload)_
+_Last updated: 2026-06-10 (build 1.0 (2) uploaded to App Store Connect)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-10) Build 1.0 (2) archived and uploaded ✅
+- Archived ToDoMon iOS app version `1.0`, build `2`, bundle id `com.sonnymay.todomon`.
+- Used Apple Team ID `57U5D693VS`.
+- `xcodebuild -exportArchive` uploaded the package to App Store Connect successfully.
+- Final exporter output: `Uploaded package is processing`, `Upload succeeded`, and
+  `** EXPORT SUCCEEDED **`.
+- Next step: in App Store Connect, wait for build `1.0 (2)` to finish processing, attach it to the
+  rejected iOS version `1.0`, send the saved App Review reply, and resubmit to App Review.
 
 ### (2026-06-09) App Review crowded UI rejection fix verified on iPhone 17 Pro Max ✅
 - Apple rejected build `1.0 (1)` for a crowded UI on iPhone 17 Pro Max.
