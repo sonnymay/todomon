@@ -9,6 +9,12 @@ _Last updated: 2026-06-12 (feature branch restored to main + rating prompt + sha
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-12) UX: "missed you" greeting no longer covers the dragon ✅
+- The welcome-back greeting bubble was centered mid-scene (left 50%, top 80) and blocked the
+  pet. Moved to the same top-left slot as the celebration speech bubble (left 12, top 86,
+  maxWidth 230) — they never render together (`greeting && !celebration`), so one consistent
+  spot. Dragon now always visible; verified in preview with seeded `todomon_last_seen`.
+
 ### (2026-06-12) ⚠️ CRITICAL recovery + rating prompt + share-your-dragon ✅
 - **Discovered: the submitted 1.1 (3) binary does NOT contain the notifications/streak-freeze
   features.** Commit `3a0548b` was stranded on branch `codex/local-ahead-before-ios-rebuild-20260609`

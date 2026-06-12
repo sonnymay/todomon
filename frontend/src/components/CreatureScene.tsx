@@ -271,11 +271,12 @@ export default function CreatureScene({
         <span className="text-[8px] font-bold leading-none">SHARE</span>
       </button>
 
-      {/* welcome-back greeting — shown once when returning on a new day */}
+      {/* welcome-back greeting — same top-left slot as the celebration bubble (they
+          never show together) so the dragon is never covered */}
       {greeting && !celebration && (
         <div
-          className="inline-flex items-center gap-2 rounded-2xl bg-white/95 px-3 py-2 shadow-md backdrop-blur"
-          style={{ position: 'absolute', left: '50%', top: 80, transform: 'translateX(-50%)', zIndex: 20, maxWidth: 260 }}
+          className="inline-flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 shadow-md backdrop-blur"
+          style={{ position: 'absolute', left: 12, top: 86, zIndex: 20, maxWidth: 230 }}
         >
           <span className="text-xl">💛</span>
           <p className="text-sm font-extrabold leading-tight text-slate-900">{greeting}</p>
