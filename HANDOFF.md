@@ -3,11 +3,30 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-11 (App Store Connect 1.1 draft screenshots updated)_
+_Last updated: 2026-06-11 (1.1 build submitted for App Review)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-11) iOS 1.1 (3) uploaded and submitted for review ✅
+- Bumped native iOS build to marketing version `1.1`, build `3`.
+- Validation before upload:
+  - `npm run build` passed.
+  - `npm --prefix frontend test -- --run` passed: 31 tests.
+  - `npm run cap:sync:ios` passed and resolved RevenueCat pods.
+  - Xcode archive passed for `build/App-1.1-3.xcarchive`.
+- Uploaded `1.1 (3)` to App Store Connect successfully:
+  `Uploaded package is processing`, `Upload succeeded`, `** EXPORT SUCCEEDED **`.
+- TestFlight processing completed for `Version 1.1, Build (3)`.
+- Attached build `1.1 (3)` to App Store Connect version `1.1`.
+- Completed export compliance for build `3`:
+  `None of the algorithms mentioned above`.
+- Clicked `Add for Review`, then `Submit for Review`.
+- Verified App Store Connect status:
+  - sidebar/version status: `1.1 Waiting for Review`.
+  - draft submissions: `0`.
+  - confirmation: `1 Item Submitted`.
 
 ### (2026-06-11) App Store Connect 1.1 screenshot draft updated ✅
 - Created/opened iOS version `1.1` draft in App Store Connect (`Prepare for Submission`).
