@@ -33,6 +33,26 @@ export function registerCompletion(state: StreakState, nowMs: number): StreakSta
   return { count: continuing ? state.count + 1 : 1, lastDate: today }
 }
 
+// Streak-freeze rescue: if the streak lapsed but the user holds enough freezes to cover
+// every missed day, "repair" the state as if the last completion were yesterday — the
+// streak survives. Returns how many freezes were spent (0 = nothing to do / not enough).
+// Pure — pass `nowMs` for deterministic tests.
+export function reconcileFreeze(
+  state: StreakState,
+  nowMs: number,
+  freezes: number,
+): { state: StreakState; used: number } {
+  if (!state.lastDate || state.count === 0 || freezes <= 0) return { state, used: 0 }
+  if (currentStreak(state, nowMs) > 0) return { state, used: 0 } // still alive
+  const lastMs = new Date(state.lastDate).getTime()
+  if (Number.isNaN(lastMs)) return { state, used: 0 }
+  // Whole days between the last completion day and today (both at local midnight).
+  const days = Math.round((new Date(dayKey(nowMs)).getTime() - lastMs) / DAY_MS)
+  const missed = days - 1 // days with no completion, excluding today
+  if (missed < 1 || missed > freezes) return { state, used: 0 }
+  return { state: { count: state.count, lastDate: dayKey(nowMs - DAY_MS) }, used: missed }
+}
+
 function read(): StreakState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -68,13 +88,25 @@ function normalizeServerDate(d: string | null): string | null {
   return new Date(`${d}T12:00:00`).toDateString()
 }
 
+// Lets the streak spend the game store's held freezes when it lapsed: `available` is how
+// many the user holds, `consume` is called once with how many were spent + the rescued count.
+export interface FreezeBridge {
+  available: number
+  consume: (used: number, keptStreak: number) => void
+}
+
 // `serverSeed` (real mode) makes the streak server-authoritative so it survives reinstall;
 // without it (dev mode) the streak is localStorage-backed exactly as before. Same rules
 // both sides, so the optimistic client update agrees with the server.
-export function useStreak(serverSeed?: {
-  count: number
-  lastDate: string | null
-}): UseStreak {
+// `freezeBridge` enables streak-freeze rescue (offline mode only — the server streak is
+// authoritative in real mode, so freezes are skipped there).
+export function useStreak(
+  serverSeed?: {
+    count: number
+    lastDate: string | null
+  },
+  freezeBridge?: FreezeBridge,
+): UseStreak {
   const controlled = serverSeed != null
   const seeded: StreakState | null = serverSeed
     ? { count: serverSeed.count, lastDate: normalizeServerDate(serverSeed.lastDate) }
@@ -88,6 +120,19 @@ export function useStreak(serverSeed?: {
     setState(seeded)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverSeed?.count, serverSeed?.lastDate])
+
+  // Streak-freeze rescue — once, on mount. Both stores load synchronously from
+  // localStorage, so the freeze count available at mount is authoritative.
+  useEffect(() => {
+    if (controlled || !freezeBridge || freezeBridge.available <= 0) return
+    const res = reconcileFreeze(state, Date.now(), freezeBridge.available)
+    if (res.used > 0) {
+      write(res.state)
+      setState(res.state)
+      freezeBridge.consume(res.used, res.state.count)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const register = useCallback((): number => {
     const now = Date.now()

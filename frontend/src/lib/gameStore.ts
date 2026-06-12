@@ -7,6 +7,8 @@ import {
   streakMilestoneReward,
   FEED_COST,
   DAILY_BONUS,
+  STREAK_FREEZE_COST,
+  MAX_STREAK_FREEZES,
 } from './economy'
 import { rollDailyQuests, advanceQuests, questClaimable } from './quests'
 import { newlyUnlocked, achievementById } from './achievements'
@@ -95,6 +97,8 @@ export interface UseGameStore {
   grantProCosmetics: () => void
   markAchievementsSeen: () => void
   noteMemory: (m: Omit<DiaryMemory, 'at'>) => void
+  buyStreakFreeze: () => boolean
+  consumeStreakFreezes: (n: number) => void
 }
 
 export function useGameStore(today: string): UseGameStore {
@@ -267,6 +271,35 @@ export function useGameStore(today: string): UseGameStore {
     })
   }, [])
 
+  // Buy a Streak Freeze 🧊 (covers one missed day; held count is capped).
+  const buyStreakFreeze = useCallback((): boolean => {
+    let ok = false
+    setState((prev) => {
+      if (prev.coins < STREAK_FREEZE_COST || prev.streakFreezes >= MAX_STREAK_FREEZES) {
+        return prev
+      }
+      ok = true
+      const next = {
+        ...prev,
+        coins: prev.coins - STREAK_FREEZE_COST,
+        streakFreezes: prev.streakFreezes + 1,
+      }
+      write(next)
+      return next
+    })
+    return ok
+  }, [])
+
+  // Spend held freezes (called by the streak rescue in useStreak).
+  const consumeStreakFreezes = useCallback((n: number): void => {
+    setState((prev) => {
+      if (n <= 0 || prev.streakFreezes <= 0) return prev
+      const next = { ...prev, streakFreezes: Math.max(0, prev.streakFreezes - n) }
+      write(next)
+      return next
+    })
+  }, [])
+
   // Record the latest Dragon Diary memory (completion / streak / evolution).
   const noteMemory = useCallback((m: Omit<DiaryMemory, 'at'>): void => {
     setState((prev) => {
@@ -297,5 +330,7 @@ export function useGameStore(today: string): UseGameStore {
     grantProCosmetics,
     markAchievementsSeen,
     noteMemory,
+    buyStreakFreeze,
+    consumeStreakFreezes,
   }
 }

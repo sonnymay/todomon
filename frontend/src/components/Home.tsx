@@ -144,6 +144,7 @@ export default function Home({
         <TaskList
           tasks={tasks}
           streak={streak}
+          freezes={game.state.streakFreezes}
           onAdd={onAdd}
           onComplete={onComplete}
           onUncomplete={onUncomplete}

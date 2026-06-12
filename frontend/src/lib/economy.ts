@@ -34,6 +34,11 @@ export const FEED_RESTORE = 30 // hunger points restored per feed
 // Daily login reward.
 export const DAILY_BONUS = 20
 
+// Streak Freeze: covers one missed day so the streak survives. Capped so it stays a
+// safety net, not a way to stop playing.
+export const STREAK_FREEZE_COST = 60
+export const MAX_STREAK_FREEZES = 2
+
 // Streak milestones → bonus coins (returned when the streak first reaches the day).
 export const STREAK_MILESTONES: Record<number, number> = {
   3: 30,
