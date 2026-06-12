@@ -92,6 +92,7 @@ export default function Home({
           creature={creature}
           night={night}
           hunger={hunger}
+          streak={streak}
           justLeveledTo={leveledTo}
           celebration={celebrate}
           greeting={greeting}

@@ -3,13 +3,33 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-11 (1.1 build submitted for App Review)_
+_Last updated: 2026-06-12 (feature branch restored to main + rating prompt + share card; build 1.1 (4) NEEDED)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
 
-### (2026-06-11) iOS 1.1 (3) uploaded and submitted for review ✅
+### (2026-06-12) ⚠️ CRITICAL recovery + rating prompt + share-your-dragon ✅
+- **Discovered: the submitted 1.1 (3) binary does NOT contain the notifications/streak-freeze
+  features.** Commit `3a0548b` was stranded on branch `codex/local-ahead-before-ios-rebuild-20260609`
+  (Codex's build-2 session reset main to origin); main was missing notifications.ts, the freeze
+  logic, root plugin deps, and the Podfile entries. The 1.1 What's New text promises features
+  the binary lacks → **must archive/upload build `1.1 (4)` from current main and replace the
+  build on the 1.1 submission** (remove from review → attach build 4 → resubmit).
+- Merged `3a0548b` into main (clean merge; tests back to 40).
+- NEW: App Store rating prompt (`@capacitor-community/in-app-review`) — `lib/review.ts`,
+  asked once per trigger at peak moments: evolution fanfare + 7-day streak milestone
+  (`todomon_review_v1`). Wired in App.tsx applyLevelUp/awardCompletion.
+- NEW: Share-your-dragon (`@capacitor/share` + `@capacitor/filesystem`) — `lib/share.ts`
+  renders a 1080×1350 postcard (live video frame + name/stage/streak + App Store link
+  apps.apple.com/app/id6776013029) to cache and opens the native share sheet; orange SHARE
+  button under the SLEEP toggle in CreatureScene. Web fallback: text-only navigator.share.
+- Root package.json now has ALL 8 plugin deps; `cap:sync:ios` reports **7 plugins** (app,
+  filesystem, haptics, in-app-review, local-notifications, share, revenuecat). Podfile verified.
+- Verification: `npm run build` ✅, 45 tests ✅, browser preview: SHARE button renders, click
+  is error-free, freeze diary + reminder toggle still work.
+
+### (2026-06-11) iOS 1.1 (3) uploaded and submitted for review ⚠️ superseded — build lacks features ✅→❌
 - Bumped native iOS build to marketing version `1.1`, build `3`.
 - Validation before upload:
   - `npm run build` passed.

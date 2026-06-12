@@ -4,14 +4,17 @@ import {
   creatureHungryVideo,
   creatureSceneVideo,
   creatureSleepImage,
+  STAGE_LABEL,
 } from '../lib/stages'
 import * as sfx from '../lib/sfx'
 import * as haptics from '../lib/haptics'
+import { shareDragon } from '../lib/share'
 
 interface Props {
   creature: Creature
   night: boolean
   hunger: number
+  streak: number
   justLeveledTo: string | null
   celebration: string | null
   greeting: string | null
@@ -35,6 +38,7 @@ export default function CreatureScene({
   creature,
   night,
   hunger,
+  streak,
   justLeveledTo,
   celebration,
   greeting,
@@ -68,6 +72,21 @@ export default function CreatureScene({
   const [bounce, setBounce] = useState(false)
   const [feeding, setFeeding] = useState(false)
   const heartId = useRef(0)
+  // Root element ref so the share card can grab the currently playing scene video.
+  const sceneRef = useRef<HTMLDivElement>(null)
+  const [sharing, setSharing] = useState(false)
+
+  async function handleShare() {
+    if (sharing) return
+    setSharing(true)
+    haptics.tapLight()
+    try {
+      const video = sceneRef.current?.querySelector('video') ?? null
+      await shareDragon(video, creature.name, STAGE_LABEL[creature.stage], streak)
+    } finally {
+      setSharing(false)
+    }
+  }
 
   // Happy reaction when fed (feedSignal increments on each feed).
   useEffect(() => {
@@ -96,6 +115,7 @@ export default function CreatureScene({
 
   return (
     <div
+      ref={sceneRef}
       style={{
         position: 'relative',
         width: '100%',
@@ -238,6 +258,17 @@ export default function CreatureScene({
         <span className="text-[8px] font-bold leading-none">
           {night ? 'WAKE' : 'SLEEP'}
         </span>
+      </button>
+
+      {/* share your dragon — below the sleep toggle */}
+      <button
+        onClick={() => void handleShare()}
+        disabled={sharing}
+        aria-label="Share your dragon"
+        className="absolute right-3 top-[7.5rem] z-30 flex h-12 w-12 flex-col items-center justify-center rounded-full bg-orange-500 text-white shadow-lg ring-2 ring-white transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
+      >
+        <span className="text-lg leading-none">📤</span>
+        <span className="text-[8px] font-bold leading-none">SHARE</span>
       </button>
 
       {/* welcome-back greeting — shown once when returning on a new day */}

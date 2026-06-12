@@ -42,6 +42,7 @@ import { useHunger } from './lib/useHunger'
 import { useStreak } from './lib/useStreak'
 import * as sfx from './lib/sfx'
 import * as haptics from './lib/haptics'
+import { maybeRequestReview } from './lib/review'
 import { App as CapApp } from '@capacitor/app'
 import {
   clearReminders,
@@ -292,6 +293,8 @@ export default function App() {
         emoji: '🐲',
         text: `Evolved to ${STAGE_LABEL[nextStage as keyof typeof STAGE_LABEL]}!`,
       })
+      // Peak-happiness moment: ask for an App Store rating (once, after the fanfare).
+      void maybeRequestReview('evolution')
     }
   }
 
@@ -324,6 +327,8 @@ export default function App() {
     // this later in applyLevelUp.
     if (res.milestone > 0) {
       game.noteMemory({ kind: 'streak', emoji: '🔥', text: `Reached a ${newStreak}-day streak!` })
+      // A streak milestone (7+) is the other peak-happiness moment worth a rating ask.
+      if (newStreak >= 7) void maybeRequestReview('streak_milestone')
     } else {
       game.noteMemory({
         kind: 'completion',
