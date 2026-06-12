@@ -3,11 +3,28 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-11 (app LIVE; new App Store screenshot set captured)_
+_Last updated: 2026-06-11 (App Store Connect 1.1 draft screenshots updated)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-11) App Store Connect 1.1 screenshot draft updated ✅
+- Created/opened iOS version `1.1` draft in App Store Connect (`Prepare for Submission`).
+- Replaced carried-over App Store screenshots on the `1.1` draft:
+  - iPhone 6.5" Display: `6 of 10 Screenshots`.
+  - iPad 13" Display: `6 of 10 Screenshots`.
+- Verified exact uploaded order on both tabs:
+  1. `01-home-*`
+  2. `06-night-*`
+  3. `02-tasks-*`
+  4. `04-quests-*`
+  5. `05-trophies-*`
+  6. `03-shop-*`
+- App Store Connect rejected the requested "What's New" text because the emoji/em dash triggered
+  `This field contains one or more invalid characters.` Saved a platform-safe equivalent instead:
+  `Your dragon now misses you! New gentle reminders when you've been away, plus Streak Freezes in the shop - cover a missed day and keep your streak safe.`
+- Clicked **Save** only. Did **not** click `Add for Review` / `Submit for Review`.
 
 ### (2026-06-11) Full App Store screenshot set captured from the real app ✅
 - App is now LIVE on the App Store. Generated 6 iPhone 6.5" (1284×2778) + 6 iPad 13"
@@ -19,7 +36,7 @@ _Last updated: 2026-06-11 (app LIVE; new App Store screenshot set captured)_
   8/11 trophies, 3/6 tasks done, claimable quest, diary memory) then shoots: 01-home,
   02-tasks, 03-shop, 04-quests, 05-trophies, 06-night. Files: `0X-name-iphone-65.png` /
   `0X-name-ipad-13.png`.
-- NOT yet uploaded to App Store Connect (user to upload, or ask for browser automation).
+- Uploaded to App Store Connect version `1.1` draft on 2026-06-11 (see note above).
 - `docs/support.html` footer copyright changed Santipap May → Sonny May.
 - App Store "seller name" is the Individual account's legal name (Santipap May) — Apple does
   not allow renaming it to a nickname; options are a legal-name change with Apple Support or
