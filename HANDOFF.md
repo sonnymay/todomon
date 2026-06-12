@@ -3,11 +3,28 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-10 (build 1.0 (2) uploaded to App Store Connect)_
+_Last updated: 2026-06-11 (app LIVE; new App Store screenshot set captured)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-11) Full App Store screenshot set captured from the real app ✅
+- App is now LIVE on the App Store. Generated 6 iPhone 6.5" (1284×2778) + 6 iPad 13"
+  (2048×2732) screenshots by capturing the REAL app (not HTML mockups) via Playwright:
+  `app-store-screenshots/capture.mjs` (run with
+  `NODE_PATH=~/.npm/_npx/e41f203b7505f1fb/node_modules node capture.mjs [ipad]`,
+  Vite dev server must be running on :5173).
+- Script seeds a flattering state via localStorage (champion Sunny, 7-day streak, 145 coins,
+  8/11 trophies, 3/6 tasks done, claimable quest, diary memory) then shoots: 01-home,
+  02-tasks, 03-shop, 04-quests, 05-trophies, 06-night. Files: `0X-name-iphone-65.png` /
+  `0X-name-ipad-13.png`.
+- NOT yet uploaded to App Store Connect (user to upload, or ask for browser automation).
+- `docs/support.html` footer copyright changed Santipap May → Sonny May.
+- App Store "seller name" is the Individual account's legal name (Santipap May) — Apple does
+  not allow renaming it to a nickname; options are a legal-name change with Apple Support or
+  converting to an Organization account (needs DUNS). The editable **Copyright field** in
+  App Store Connect (App Information) can be set to "2026 Sonny May" freely.
 
 ### (2026-06-10) Build 1.0 (2) archived and uploaded ✅
 - Archived ToDoMon iOS app version `1.0`, build `2`, bundle id `com.sonnymay.todomon`.
