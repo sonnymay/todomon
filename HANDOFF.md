@@ -3,11 +3,22 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-12 (feature branch restored to main + rating prompt + share card; build 1.1 (4) NEEDED)_
+_Last updated: 2026-06-13 (App Store Connect price changed from free to USD $0.99)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-13) App Store price changed from free to USD $0.99 ✅
+- In App Store Connect for `ToDoMon: Pet & To-Do` (`6776013029`), opened
+  Distribution → Pricing and Availability.
+- Scheduled a global price change effective `Jun 13, 2026` / `Make Price Change Now`.
+- Confirmed the price change screen showed:
+  - United States (USD): current `$0.00` → new `$0.99`.
+  - 175 countries/regions included, with Apple-generated comparable international prices.
+- After confirming, reopened the `Current Price` details and verified:
+  - United States (USD) price is `$0.99`.
+  - United States proceeds show `$0.70`.
 
 ### (2026-06-12) UX: "missed you" greeting no longer covers the dragon ✅
 - The welcome-back greeting bubble was centered mid-scene (left 50%, top 80) and blocked the
