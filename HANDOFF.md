@@ -3,11 +3,38 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-13 (App Store Connect price changed from free to USD $0.99)_
+_Last updated: 2026-06-15 (10 App Store screenshots generated; ASC upload blocked by frozen Chrome tab)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-15) App Store screenshot set expanded to 10 per device ✅ / upload blocked ⚠️
+- Expanded `app-store-screenshots/capture.mjs` so it now captures a full 10-shot App Store set
+  from the real app state, ordered for conversion:
+  1. `01-home-*` — hero dragon + core dashboard.
+  2. `02-missed-you-*` — emotional "Sunny missed you" return moment.
+  3. `03-feed-reaction-*` — completing a task feeds/rewards the dragon.
+  4. `04-tasks-*` — task list + streak/freezes.
+  5. `05-night-*` — sleeping dragon/night mode.
+  6. `06-quests-*` — daily quests.
+  7. `07-trophies-*` — achievements.
+  8. `08-shop-*` — shop/streak freeze/pro upsell.
+  9. `09-evolution-*` — evolution celebration.
+  10. `10-stats-*` — long-term productivity stats.
+- Regenerated local ignored assets in `app-store-screenshots/`:
+  - iPhone 6.5": 10 PNGs, all `1284x2778`.
+  - iPad 13": 10 PNGs, all `2048x2732`.
+- Verification:
+  - `npm --prefix frontend run build` passed.
+  - `npm --prefix frontend test -- --run` passed: 45 tests.
+  - Visual spot-check passed for the first three iPhone shots plus evolution/stats.
+- App Store Connect upload attempt did **not** complete. Chrome/App Store Connect froze on the
+  existing iOS version page and showed `Page Unresponsive` before any screenshot upload started.
+  No ASC screenshot changes were saved in this session.
+- Next upload path: create/open the next iOS version draft in App Store Connect, replace iPhone
+  6.5" and iPad 13" screenshots with the 10 generated files above in exact filename order, click
+  Save, and do **not** submit for review until a matching build/version is ready.
 
 ### (2026-06-13) App Store price changed from free to USD $0.99 ✅
 - In App Store Connect for `ToDoMon: Pet & To-Do` (`6776013029`), opened
