@@ -1,21 +1,54 @@
 # ToDoMon
 
-ToDoMon: Pet & To-Do is a Tamagotchi-style productivity app. Finish real tasks to feed, grow, and evolve your Sun Dragon.
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
+[![Capacitor](https://img.shields.io/badge/Capacitor-iOS-119EFF.svg)](https://capacitorjs.com/)
 
-## Features
+ToDoMon is a pet-care productivity app: finish real tasks to feed, grow, and evolve a Sun Dragon.
 
-- Offline-first task list with title, notes, difficulty, edit, complete, undo, and delete.
-- Sun Dragon care loop with hunger, mood, sleep, evolution, streaks, quests, trophies, cosmetics, and diary memories.
-- iOS app packaged with Capacitor from a React/Vite frontend.
-- Optional one-time ToDoMon Pro / Supporter Pack purchase for premium cosmetics and bonus celebrations.
+## Screenshots
 
-## Tech Stack
+| Home | Tasks | Evolution |
+|---|---|---|
+| ![Home screen](app-store-screenshots/01-home-iphone-65.png) | ![Task list](app-store-screenshots/04-tasks-iphone-65.png) | ![Evolution](app-store-screenshots/09-evolution-iphone-65.png) |
 
-- **App:** React, TypeScript, Vite, Tailwind CSS.
-- **Native shell:** Capacitor iOS.
-- **Persistence:** local device storage for the offline App Store build.
-- **IAP:** StoreKit through RevenueCat for `todomon_pro`.
+## What this code shows
 
-## Getting Started
+- React/Vite frontend packaged for iOS with Capacitor.
+- Offline-first task and creature state stored locally for the App Store build.
+- Game loop with hunger, mood, sleep, XP, stages, streaks, quests, trophies, diary memories, cosmetics, haptics, sound, and share cards.
+- RevenueCat-backed one-time Pro unlock path for premium cosmetics and bonus celebrations.
+- Focused unit tests around game economy, quests, stage progression, notifications, review prompts, sharing, and streaks.
 
-See `docs/` for ship notes, IAP setup, and App Store release checklists.
+## Stack
+
+| Layer | Tech |
+|---|---|
+| App | React, TypeScript, Vite, Tailwind CSS |
+| Native shell | Capacitor iOS |
+| Persistence | Local device storage |
+| IAP | RevenueCat / StoreKit, product `todomon_pro` |
+| QA | Vitest, App Store screenshot capture scripts |
+
+## Local development
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Quality checks
+
+```bash
+cd frontend
+npm run build
+npm test
+```
+
+## iOS release notes
+
+- Bundle ID: `com.sonnymay.todomon`
+- App Store Connect app ID: `6776013029`
+- Screenshot sets live in `app-store-screenshots/`.
+- Shipping notes live in `HANDOFF.md`, `docs/SHIP_PLAN.md`, and `docs/IAP_SETUP.md`.
