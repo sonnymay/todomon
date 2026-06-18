@@ -3,7 +3,7 @@ import { isSoundOn, setSoundOn } from '../lib/sfx'
 import { isHapticsOn, setHapticsOn } from '../lib/haptics'
 import { isRemindersOn, setRemindersOn } from '../lib/notifications'
 
-const APP_VERSION = '1.0.0'
+const APP_VERSION = '1.1'
 const MAX_NAME = 16
 
 interface Props {
@@ -121,11 +121,11 @@ export default function Settings({
           <span className="text-2xl">{isPro ? '👑' : '✨'}</span>
           <div className="flex-1">
             <p className={`text-sm font-black ${isPro ? 'text-green-700' : 'text-white'}`}>
-              {isPro ? "You're Pro" : 'Unlock ToDoMon Pro'}
+              {isPro ? "You're Pro" : 'Support ToDoMon'}
             </p>
             {!isPro && (
               <p className="text-xs font-semibold text-white/90">
-                Exclusive accessories & extra delight, one-time
+                Optional cosmetics & extra delight, one-time
               </p>
             )}
           </div>

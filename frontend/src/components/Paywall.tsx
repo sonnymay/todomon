@@ -10,9 +10,9 @@ interface Props {
 }
 
 const BENEFITS = [
-  { emoji: '👑', text: 'Dress up your dragon with exclusive accessories — Cosmic Aura, Royal Frame & Crown' },
+  { emoji: '👑', text: 'Dress up your dragon with supporter-only cosmetics — Cosmic Aura, Royal Frame & Crown' },
   { emoji: '🎉', text: 'A golden star shower every time you finish a task' },
-  { emoji: '💛', text: 'Give your buddy the royal treatment & keep the app growing' },
+  { emoji: '💛', text: 'Optional upgrade that helps ToDoMon keep growing' },
 ]
 
 export default function Paywall({ isPro, onBuy, onRestore, onClose }: Props) {
@@ -42,11 +42,11 @@ export default function Paywall({ isPro, onBuy, onRestore, onClose }: Props) {
   }
 
   return (
-    <Sheet title="✨ ToDoMon Pro" onClose={onClose}>
+    <Sheet title="✨ Supporter Pack" onClose={onClose}>
       <div className="pb-2 text-center">
         <div className="text-5xl">🐲👑</div>
         <p className="mt-2 text-sm text-slate-600">
-          A one-time unlock — no subscription, yours forever.
+          ToDoMon is fully playable. This one-time pack adds extra delight.
         </p>
 
         <div className="mt-4 space-y-2 text-left">
@@ -70,7 +70,7 @@ export default function Paywall({ isPro, onBuy, onRestore, onClose }: Props) {
             disabled={busy}
             className="mt-5 w-full rounded-2xl bg-orange-500 py-3.5 text-base font-black text-white shadow-sm transition hover:bg-orange-600 active:scale-95 disabled:opacity-60"
           >
-            {busy ? 'Please wait…' : `Unlock Pro · ${PRO_PRICE_DISPLAY}`}
+            {busy ? 'Please wait…' : `Get Supporter Pack · ${PRO_PRICE_DISPLAY}`}
           </button>
         )}
 

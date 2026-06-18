@@ -3,11 +3,41 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-15 (10 App Store screenshots generated; ASC upload blocked by frozen Chrome tab)_
+_Last updated: 2026-06-18 (paid-app trust polish, docs refresh, CI push blocked by GitHub scope)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-18) Paid-app trust polish + docs refresh ✅ / CI push blocked ⚠️
+- Reviewed the current app/release state from local repo, GitHub, Capacitor, and screenshot assets.
+- Verification before edits:
+  - `npm --prefix frontend run build` passed.
+  - `npm --prefix frontend test -- --run` passed: 45 tests.
+  - `npm run cap:sync:ios` passed and resolved 7 native plugins.
+  - iOS build settings read as bundle id `com.sonnymay.todomon`, version `1.1`, build `3`,
+    Team ID `57U5D693VS`, deployment target `15.0`.
+  - 10 iPhone screenshots are `1284x2778`; 10 iPad screenshots are `2048x2732`.
+- Changed the Pro upsell copy in Shop/Settings/Paywall to frame it as an optional Supporter Pack,
+  reducing second-checkout friction now that the base app costs `$0.99`.
+- Updated Settings version display from `1.0.0` to `1.1`.
+- Refreshed `README.md` so it describes the real Capacitor + React offline iOS app, not the old
+  FastAPI/Swift prototype wording.
+- Refreshed `docs/support.html` to remove unsupported due-date/priority claims, explain current
+  task/pet behavior, and mention Apple/RevenueCat for purchases.
+- Tried to add GitHub Actions CI for install/build/tests/iOS sync, but GitHub rejected the push:
+  `refusing to allow an OAuth App to create or update workflow .github/workflows/ci.yml without workflow scope`.
+  The current GitHub token has `repo` but not `workflow`; re-auth with workflow scope before adding CI.
+- Regenerated ignored App Store screenshot assets after the Shop copy change:
+  - iPhone 6.5": 10 PNGs, all `1284x2778`.
+  - iPad 13": 10 PNGs, all `2048x2732`.
+  - Spot-check: `08-shop-iphone-65.png` now says "Optional Supporter Pack".
+- Verification after edits:
+  - `npm --prefix frontend run build` passed.
+  - `npm --prefix frontend test -- --run` passed: 45 tests.
+  - `npm run cap:sync:ios` passed and resolved 7 native plugins.
+- Still blocked for revenue until the RevenueCat iOS public SDK key is added to `frontend/.env` as
+  `VITE_REVENUECAT_IOS_API_KEY` and the RevenueCat `pro` entitlement is attached to `todomon_pro`.
 
 ### (2026-06-15) App Store screenshot set expanded to 10 per device ✅ / upload blocked ⚠️
 - Expanded `app-store-screenshots/capture.mjs` so it now captures a full 10-shot App Store set
