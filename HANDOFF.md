@@ -26,11 +26,15 @@ _Last updated: 2026-06-18 (paid-app trust polish, docs refresh, CI push blocked 
   - `npm run cap:sync:ios` passed and resolved 7 native plugins.
   - Xcode archive succeeded: `build/App-1.2-4.xcarchive`.
   - App Store export succeeded: `build/export-1.2-4/App.ipa` (~28 MB).
-- Upload blocked: no App Store Connect API key/private key/env vars or altool keychain credential
-  found on this machine. Upload the IPA with Xcode Organizer/Transporter, or provide an App Store
-  Connect API key + issuer ID and private key for CLI upload.
-- App Store Connect page left at version `1.2`; build not attached yet because binary upload is not
-  complete.
+- Uploaded build `1.2 (4)` to App Store Connect via `xcodebuild -exportArchive` using a temporary
+  upload export options plist. Exporter reported `Uploaded package is processing`, `Upload succeeded`,
+  and `** EXPORT SUCCEEDED **`.
+- App Store Connect/TestFlight processing completed for version `1.2`, build `4`.
+- Attached build `1.2 (4)` to the App Store Connect iOS version `1.2`.
+- Completed App Encryption Documentation for build `4` with `None of the algorithms mentioned above`;
+  the build row now shows build `4`, version `1.2`, and no missing-compliance warning.
+- Not submitted for review yet: the final `Add for Review` / App Review submission action still needs
+  an explicit confirmation before clicking.
 
 ### (2026-06-18) Paid-app trust polish + docs refresh ✅ / CI push blocked ⚠️
 - Reviewed the current app/release state from local repo, GitHub, Capacitor, and screenshot assets.
