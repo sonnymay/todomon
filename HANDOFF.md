@@ -9,6 +9,29 @@ _Last updated: 2026-06-18 (paid-app trust polish, docs refresh, CI push blocked 
 
 ## 0. Recent fixes (most recent first)
 
+### (2026-06-21) Prepared iOS 1.2 build for metadata refresh ⏳
+- Bumped native iOS marketing version to `1.2` and build number to `4`.
+- Updated in-app Settings/support version display to `1.2`.
+- Created App Store Connect iOS version `1.2` (`Prepare for Submission`).
+- Applied and saved metadata:
+  - App name: `ToDoMon: Pet & To-Do` (already correct).
+  - Subtitle: `Raise a pet by finishing tasks`.
+  - Keywords: `todo,habit,tamagotchi,pet,tasks,streak,virtual pet,dragon,gamification,reward,planner,evolve`.
+  - Description: replaced with the new Sun Dragon/productivity copy from the 2026-06-21 request.
+  - Marketing URL: `https://sonnymay.github.io/todomon`.
+  - What's New: kept existing Streak Freezes/reminders text.
+- Verification:
+  - `npm --prefix frontend run build` passed.
+  - `npm --prefix frontend test -- --run` passed: 45 tests.
+  - `npm run cap:sync:ios` passed and resolved 7 native plugins.
+  - Xcode archive succeeded: `build/App-1.2-4.xcarchive`.
+  - App Store export succeeded: `build/export-1.2-4/App.ipa` (~28 MB).
+- Upload blocked: no App Store Connect API key/private key/env vars or altool keychain credential
+  found on this machine. Upload the IPA with Xcode Organizer/Transporter, or provide an App Store
+  Connect API key + issuer ID and private key for CLI upload.
+- App Store Connect page left at version `1.2`; build not attached yet because binary upload is not
+  complete.
+
 ### (2026-06-18) Paid-app trust polish + docs refresh ✅ / CI push blocked ⚠️
 - Reviewed the current app/release state from local repo, GitHub, Capacitor, and screenshot assets.
 - Verification before edits:

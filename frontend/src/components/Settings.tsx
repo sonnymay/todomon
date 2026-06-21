@@ -3,7 +3,7 @@ import { isSoundOn, setSoundOn } from '../lib/sfx'
 import { isHapticsOn, setHapticsOn } from '../lib/haptics'
 import { isRemindersOn, setRemindersOn } from '../lib/notifications'
 
-const APP_VERSION = '1.1'
+const APP_VERSION = '1.2'
 const MAX_NAME = 16
 
 interface Props {
