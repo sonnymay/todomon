@@ -3,11 +3,37 @@
 > Read this first when starting a new session. It captures the full state of the
 > project so you can continue without re-discovering everything.
 
-_Last updated: 2026-06-18 (paid-app trust polish, docs refresh, CI push blocked by GitHub scope)_
+_Last updated: 2026-06-24 (Game Center achievements wired and verified)_
 
 ---
 
 ## 0. Recent fixes (most recent first)
+
+### (2026-06-24) Game Center achievements wired ✅
+- Added native GameKit support for the Capacitor iOS app:
+  - `GameCenterManager.swift` authenticates `GKLocalPlayer.local` on launch and presents the
+    Game Center auth controller when Apple requires sign-in.
+  - `GameCenterPlugin.swift` exposes `reportAchievement(identifier:)` to the React app and includes
+    a debug-only reset path.
+  - `AppBridgeViewController.swift` registers the app-local Capacitor plugin.
+  - `App.entitlements` enables the Game Center entitlement for the iOS target.
+- Added React wrapper `frontend/src/lib/gameCenter.ts`; it no-ops on web, catches unavailable
+  Game Center/auth/plugin errors, and stores local guards to avoid repeated reports.
+- Achievement trigger map:
+  - `toDoMon.firstTask` after any first completed task path.
+  - `toDoMon.streak3` when completion leaves the user at a 3+ day streak.
+  - `toDoMon.streak7` when completion leaves the user at a 7+ day streak.
+  - `toDoMon.petEvolved` when the dragon reaches the 3rd stage (`baby`, stage index `2`).
+  - `toDoMon.streakFreeze` when a held Streak Freeze is consumed to rescue a streak.
+- Verification:
+  - `npm --prefix frontend run build` passed.
+  - `npm --prefix frontend test -- --run` passed: 45 tests.
+  - `npm run cap:sync:ios` passed and copied the updated web bundle into iOS.
+  - `xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build` passed.
+- App Store Connect still needs the five Game Center achievement records created with these exact
+  identifiers before release:
+  `toDoMon.firstTask`, `toDoMon.streak3`, `toDoMon.streak7`, `toDoMon.petEvolved`,
+  `toDoMon.streakFreeze`.
 
 ### (2026-06-21) Prepared iOS 1.2 build for metadata refresh ⏳
 - Bumped native iOS marketing version to `1.2` and build number to `4`.

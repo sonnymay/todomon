@@ -43,6 +43,7 @@ import { useStreak } from './lib/useStreak'
 import * as sfx from './lib/sfx'
 import * as haptics from './lib/haptics'
 import { maybeRequestReview } from './lib/review'
+import { GAME_CENTER_ACHIEVEMENTS, reportGameCenterAchievement } from './lib/gameCenter'
 import { App as CapApp } from '@capacitor/app'
 import {
   clearReminders,
@@ -114,6 +115,7 @@ export default function App() {
         emoji: '🧊',
         text: `Used a Streak Freeze — ${getStoredPetName()} kept your ${kept}-day streak safe!`,
       })
+      void reportGameCenterAchievement(GAME_CENTER_ACHIEVEMENTS.streakFreeze)
     },
   })
 
@@ -285,8 +287,12 @@ export default function App() {
       sfx.playLevelUp()
       haptics.success()
       evolveBurst()
-      const unlocked = game.recordEvolve(STAGE_ORDER.indexOf(nextStage as Stage))
+      const stageIdx = STAGE_ORDER.indexOf(nextStage as Stage)
+      const unlocked = game.recordEvolve(stageIdx)
       if (unlocked.length) showUnlocked(unlocked)
+      if (stageIdx >= 2) {
+        void reportGameCenterAchievement(GAME_CENTER_ACHIEVEMENTS.petEvolved)
+      }
       // Diary: evolution is the biggest event — recorded after awardCompletion so it wins.
       game.noteMemory({
         kind: 'evolution',
@@ -320,6 +326,9 @@ export default function App() {
     const newStreak = registerStreak()
     const res = game.recordCompletion(difficultyForXp(xpReward), newStreak, pro ? 2 : 1)
     const total = res.coins + res.lucky + res.milestone
+    void reportGameCenterAchievement(GAME_CENTER_ACHIEVEMENTS.firstTask)
+    if (newStreak >= 3) void reportGameCenterAchievement(GAME_CENTER_ACHIEVEMENTS.streak3)
+    if (newStreak >= 7) void reportGameCenterAchievement(GAME_CENTER_ACHIEVEMENTS.streak7)
     showCoins(total)
     if (res.lucky > 0 || res.milestone > 0) sfx.playLevelUp()
     if (res.unlocked.length) showUnlocked(res.unlocked)
