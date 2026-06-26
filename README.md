@@ -92,6 +92,7 @@ Then open `ios/` in Xcode and archive for App Store submission.
 - App Store Connect app ID: `6776013029`
 - Screenshot sets: `app-store-screenshots/`
 - Ship notes: `HANDOFF.md`, `docs/SHIP_PLAN.md`, `docs/IAP_SETUP.md`
+- Xcode version: 16.x (required for iOS 18 target)
 
 ---
 
